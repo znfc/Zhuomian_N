@@ -9,7 +9,7 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import com.android.launcher3.Launcher;
-import com.jayway.android.robotium.solo.Solo;
+//import com.jayway.android.robotium.solo.Solo;
 
 public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launcher> {
     private static final String TAG = "RotationChangeTest";
@@ -19,7 +19,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
 
     private Launcher mLauncher;
     private Instrumentation mInst;
-    private Solo mSolo;
+//    private Solo mSolo;
 
     public RotationChangeTest() {
         super(Launcher.class);
@@ -30,7 +30,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
         super.setUp();
         mLauncher = this.getActivity();
         mInst = this.getInstrumentation();
-        mSolo = new Solo(mInst, mLauncher);
+//        mSolo = new Solo(mInst, mLauncher);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
 
         View settingsButton = (View) mLauncher.findViewById(R.id.settings_button);
         if (settingsButton != null) {
-            mSolo.clickOnView(settingsButton);
+//            mSolo.clickOnView(settingsButton);
             SystemClock.sleep(WAIT_TIME_MS);
 
             sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
@@ -56,7 +56,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
     public void test02_HomeScreenRotationTest() throws Exception {
         Log.d(TAG, "test02_HomeScreenRotationTest");
 
-        mSolo.sleep(WAIT_TIME_MS);
+//        mSolo.sleep(WAIT_TIME_MS);
         mInst.waitForIdleSync();
 
         setRequestedOrientation(
@@ -73,7 +73,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
     public void test03_AllAppRotationTest() throws Exception {
         Log.d(TAG, "test03_AllAppRotationTest");
 
-        mSolo.sleep(WAIT_TIME_MS);
+//        mSolo.sleep(WAIT_TIME_MS);
         mInst.waitForIdleSync();
 
         // Enter AllApp.
@@ -101,7 +101,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
         // Widget page.
         View wigdetButton = (View) mLauncher.findViewById(R.id.widget_button);
         if (wigdetButton != null) {
-           mSolo.clickOnView(wigdetButton);
+//           mSolo.clickOnView(wigdetButton);
            SystemClock.sleep(WAIT_TIME_MS);
 
            setRequestedOrientation(
@@ -125,7 +125,7 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
         // Rotation page.
         View wallpaperButton = (View) mLauncher.findViewById(R.id.wallpaper_button);
         if(wallpaperButton != null) {
-           mSolo.clickOnView(wallpaperButton);
+//           mSolo.clickOnView(wallpaperButton);
            SystemClock.sleep(WAIT_TIME_MS);
 
            setRequestedOrientation(
@@ -142,13 +142,13 @@ public class RotationChangeTest extends ActivityInstrumentationTestCase2<Launche
 
     private void sendKeyDownUpSync(int keycode) {
         mInst.sendKeyDownUpSync(keycode);
-        mSolo.sleep(WAIT_TIME_MS);
+//        mSolo.sleep(WAIT_TIME_MS);
         mInst.waitForIdleSync();
     }
 
     private void setRequestedOrientation(int orientation) {
         mLauncher.setRequestedOrientation(orientation);
-        mSolo.sleep(WAIT_TIME_MS);
+//        mSolo.sleep(WAIT_TIME_MS);
         mInst.waitForIdleSync();
     }
 }
