@@ -17,6 +17,7 @@
 package com.android.launcher3;
 
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -109,6 +110,24 @@ public class LauncherAppState {
 
         sContext.registerReceiver(
                 new WallpaperChangedReceiver(), new IntentFilter(Intent.ACTION_WALLPAPER_CHANGED));
+        /**
+         *  二、未接来电
+         *  未接来电不能用 Observer监听，不过当有新的未接来电时，
+         *  系统会发送一个广播com.android.phone.NotificationMgr.MissedCall_intent
+         * （锁屏上显示的未接来电数量就是通知监听这个广播实现的）
+         */
+        final IntentFilter filter1 = new IntentFilter();
+        filter1.addAction("com.android.phone.NotificationMgr.MissedCall_intent");//L 平台可以，N上不可以
+        sContext.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action != null && "com.android.phone.NotificationMgr.MissedCall_intent".equals(action)) {
+                    int mMissCallCount = intent.getExtras().getInt("MissedCallNumber");
+                    UnreadContentObserver.getUnreadContentObserver(sContext).broadcastUnreadMissCall(sContext, mMissCallCount);
+                }
+            }
+        }, filter1);
     }
 
     /**

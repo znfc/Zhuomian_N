@@ -58,7 +58,7 @@ public class UnreadContentObserver {
             broadcastUnreadMessageNumber(mcontext,mNewSmsCount);
             Toast.makeText(mcontext,"未读短信数："+mNewSmsCount,Toast.LENGTH_SHORT).show();
     }
-    private void registerObserver() {
+    public void registerObserver() {
         unregisterObserver();
         mcontext.getContentResolver().registerContentObserver(Uri.parse("content://sms"), true,
                 newMmsContentObserver);
