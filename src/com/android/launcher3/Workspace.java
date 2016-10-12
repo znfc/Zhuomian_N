@@ -4944,6 +4944,108 @@ public class Workspace extends PagedView
         return super.onTouchEvent(event);
     }
 
+    /**M: Added for unread message feature.@{**/
+    /**
+     * M: Update unread number of shortcuts and folders in workspace and hotseat.
+     */
+    public void updateShortcutsAndFoldersUnread() {
+        if (LauncherLog.DEBUG_UNREAD) {
+            LauncherLog.d(TAG, "updateShortcutsAndFolderUnread: this = " + this);
+        }
+        final ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+            getAllShortcutAndWidgetContainers();
+        int childCount = 0;
+        View view = null;
+        Object tag = null;
+        for (ShortcutAndWidgetContainer layout : childrenLayouts) {
+            childCount = layout.getChildCount();
+            for (int j = 0; j < childCount; j++) {
+                view = layout.getChildAt(j);
+                tag = view.getTag();
+                if (LauncherLog.DEBUG_UNREAD) {
+                    LauncherLog.d(TAG, "updateShortcutsAndFoldersUnread: tag = " + tag + ", j = "
+                            + j + ", view = " + view);
+                }
+                if (tag instanceof ShortcutInfo) {
+                    final ShortcutInfo info = (ShortcutInfo) tag;
+                    final Intent intent = info.intent;
+                    final ComponentName componentName = intent.getComponent();
+                    info.unreadNum = MTKUnreadLoader.getUnreadNumberOfComponent(componentName);
+                    ((BubbleTextView) view).invalidate();
+                } else if (tag instanceof FolderInfo) {
+                    ((FolderIcon) view).updateFolderUnreadNum();
+                    ((FolderIcon) view).invalidate();
+                }
+            }
+        }
+    }
+
+    /**
+     * M: Update unread number of shortcuts and folders in workspace and hotseat
+     * with the given component.
+     *
+     * @param component
+     * @param unreadNum
+     */
+    public void updateComponentUnreadChanged(ComponentName component, int unreadNum) {
+        if (LauncherLog.DEBUG_UNREAD) {
+            LauncherLog.d(TAG, "updateComponentUnreadChanged: component = " + component
+                    + ", unreadNum = " + unreadNum);
+        }
+        final ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+            getAllShortcutAndWidgetContainers();
+        int childCount = 0;
+        View view = null;
+        Object tag = null;
+        for (ShortcutAndWidgetContainer layout : childrenLayouts) {
+            childCount = layout.getChildCount();
+            for (int j = 0; j < childCount; j++) {
+                view = layout.getChildAt(j);
+
+                /// M: ALPS01642099, NULL pointer check
+                if (view != null) {
+                    tag = view.getTag();
+                } else {
+                   if (LauncherLog.DEBUG_UNREAD) {
+                       LauncherLog.d(TAG, "updateComponentUnreadChanged: view is null pointer");
+                   }
+                   continue;
+                }
+                /// M.
+                if (LauncherLog.DEBUG_UNREAD) {
+                    LauncherLog.d(TAG, "updateComponentUnreadChanged: component = " + component
+                            + ",tag = " + tag + ",j = " + j + ",view = " + view);
+                }
+                if (tag instanceof ShortcutInfo) {
+                    final ShortcutInfo info = (ShortcutInfo) tag;
+                    final Intent intent = info.intent;
+                    final ComponentName componentName = intent.getComponent();
+                    if (LauncherLog.DEBUG_UNREAD) {
+                        LauncherLog.d(TAG, "updateComponentUnreadChanged 2: find component = "
+                                + component + ",intent = " + intent + ",componentName = "
+                                + componentName);
+                    }
+                    if (componentName != null && componentName.equals(component)) {
+                        LauncherLog.d(TAG, "updateComponentUnreadChanged 1: find component = "
+                                + component + ",tag = " + tag + ",j = " + j + ",cellX = "
+                                + info.cellX + ",cellY = " + info.cellY);
+                        info.unreadNum = unreadNum;
+                        ((BubbleTextView) view).invalidate();
+                    }
+                } else if (tag instanceof FolderInfo) {
+                    ((FolderIcon) view).updateFolderUnreadNum(component, unreadNum);
+                    ((FolderIcon) view).invalidate();
+                }
+            }
+        }
+
+        /// M: Update shortcut within folder if open folder exists.
+        Folder openFolder = getOpenFolder();
+        if (openFolder != null) {
+            openFolder.updateContentUnreadNum();
+        }
+    }
+    /**@}**/
     ///M. ALPS01888456. when receive  configuration change, cancel drag.
     public void cancelDrag() {
         mDragController.cancelDrag();

@@ -99,6 +99,7 @@
     <integer name="database_id">0</integer>
 
     <!--M:ALPSALPS02299998 Lanscape item counts for foder-->
+    <bool name="config_unreadSupport">true</bool>
      <integer name="config_landscape_x">5</integer>
      <integer name="config_landscape_y">3</integer>
 </resources>

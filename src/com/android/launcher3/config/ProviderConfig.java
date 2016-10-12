@@ -19,4 +19,17 @@ package com.android.launcher3.config;
 public class ProviderConfig {
 
     public static final String AUTHORITY = "com.android.launcher3.settings.zm".intern();
+    /**
+     * UNREAD_CHANGED 是有未读短信数的action
+     */
+    public static final String ACTION_UNREAD_CHANGED = "com.mediatek.action.UNREAD_CHANGED";
+    /**
+     * UNREAD_NUMBER 是有未读短信数的extra
+     */
+    public static final String EXTRA_UNREAD_NUMBER = "com.mediatek.intent.extra.UNREAD_NUMBER";
+    /**
+     * Extra used to indicate the unread number of which component changes.
+     * 获得未读应用的额外信息的component，这个component在intent里的extra里
+     */
+    public static final String EXTRA_UNREAD_COMPONENT = "com.mediatek.intent.extra.UNREAD_COMPONENT";
 }

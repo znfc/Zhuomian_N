@@ -365,6 +365,9 @@ public class BubbleTextView extends TextView
     public void draw(Canvas canvas) {
         if (!mCustomShadowsEnabled) {
             super.draw(canvas);
+            ///: Added for MTK unread message feature.@{
+            drawUnreadEvent(canvas);
+            ///: @}
             return;
         }
 
@@ -391,6 +394,9 @@ public class BubbleTextView extends TextView
         if (getCurrentTextColor() == getResources().getColor(android.R.color.transparent)) {
             getPaint().clearShadowLayer();
             super.draw(canvas);
+            ///: Added for MTK unread message feature.@{
+            drawUnreadEvent(canvas);
+            ///: @}
             return;
         }
 
@@ -404,6 +410,9 @@ public class BubbleTextView extends TextView
         getPaint().setShadowLayer(SHADOW_SMALL_RADIUS, 0.0f, 0.0f, SHADOW_SMALL_COLOUR);
         super.draw(canvas);
         canvas.restore();
+        ///: Added for MTK unread message feature.@{
+        drawUnreadEvent(canvas);
+        ///: @}
     }
 
     @Override
@@ -640,4 +649,11 @@ public class BubbleTextView extends TextView
     public interface BubbleTextShadowHandler {
         void setPressedIcon(BubbleTextView icon, Bitmap background);
     }
+
+    ///: Added for MTK unread message feature.@{
+    private void drawUnreadEvent(Canvas canvas) {
+
+        MTKUnreadLoader.drawUnreadEventIfNeed(canvas, this);
+    }
+    ///: @}
 }

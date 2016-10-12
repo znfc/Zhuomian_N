@@ -21,10 +21,12 @@ import android.util.Log;
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherAppState;
+import com.android.launcher3.MTKUnreadLoader;
 import com.android.launcher3.compat.AlphabeticIndexCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.model.AppNameComparator;
 import com.android.launcher3.util.ComponentKey;
+import com.mediatek.launcher3.LauncherLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -322,6 +324,16 @@ public class AlphabeticalAppsList {
      */
     public void updateApps(List<AppInfo> apps) {
         if (apps == null) return;
+        final int size = apps.size();
+        AppInfo appInfo = null;
+        for (int i = 0; i < size; i++) {
+            appInfo = apps.get(i);
+            appInfo.unreadNum = MTKUnreadLoader.getUnreadNumberOfComponent(appInfo.componentName);
+            if (LauncherLog.DEBUG_UNREAD) {
+                LauncherLog.d(TAG, "updateApps: appInfo.componentName = " + appInfo.componentName
+                        + ",appInfo.unreadNum = " + appInfo.unreadNum);
+            }
+        }
         for (AppInfo app : apps) {
             mComponentToAppMap.put(app.toComponentKey(), app);
         }

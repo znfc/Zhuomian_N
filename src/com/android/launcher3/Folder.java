@@ -463,6 +463,9 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     }
 
     public void animateOpen() {
+        /**M: Update unread number of content shortcuts.@{**/
+        updateContentUnreadNum();
+        /**@}**/
         if (!(getParent() instanceof DragLayer)) return;
 
         mContent.completePendingPageChanges();
@@ -1509,4 +1512,50 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             }
         }
     };
+
+    /**
+     * M: Update unread number of the content shortcut.
+     */
+    public void updateContentUnreadNum() {
+        if (LauncherLog.DEBUG_UNREAD) {
+            LauncherLog.d(TAG, "Folder updateContentUnreadNum: mInfo = " + mInfo);
+        }
+        final ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                getAllShortcutContainersInFolder();
+        int childCount = 0;
+        View view = null;
+        Object tag = null;
+
+        for (ShortcutAndWidgetContainer layout : childrenLayouts) {
+            childCount = layout.getChildCount();
+            for (int j = 0; j < childCount; j++) {
+                view = layout.getChildAt(j);
+                tag = view.getTag();
+                if (LauncherLog.DEBUG_UNREAD) {
+                    LauncherLog.d(TAG, "updateShortcutsAndFoldersUnread: tag = " + tag + ", j = "
+                            + j + ", view = " + view);
+                }
+                if (tag instanceof ShortcutInfo) {
+                    final ShortcutInfo info = (ShortcutInfo) tag;
+                    ((BubbleTextView) view).invalidate();
+                }
+            }
+        }
+    }
+
+    /**
+     * We should only use this to search for specific children.  Do not use this method to modify
+     * ShortcutsAndWidgetsContainer directly. Includes ShortcutAndWidgetContainers from
+     * the hotseat and workspace pages
+     */
+    private ArrayList<ShortcutAndWidgetContainer> getAllShortcutContainersInFolder() {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                new ArrayList<ShortcutAndWidgetContainer>();
+        int screenCount = mContent.getChildCount();
+        for (int screen = 0; screen < screenCount; screen++) {
+            childrenLayouts.add(
+                ((CellLayout) (mContent.getChildAt(screen))).getShortcutsAndWidgets());
+        }
+        return childrenLayouts;
+    }
 }
