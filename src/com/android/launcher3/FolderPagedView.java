@@ -97,7 +97,7 @@ public class FolderPagedView extends PagedView {
              mMaxCountY = res.getInteger(R.integer.config_landscape_y);
          } else {
              mMaxCountX = profile.numFolderColumns;
-             mMaxCountY = profile.numFolderRows;
+             mMaxCountY = profile.numFolderRows - 1;//将竖屏下改为三行显示
          }
         /**@}**/
 

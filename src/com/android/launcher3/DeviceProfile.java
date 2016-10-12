@@ -256,7 +256,7 @@ public class DeviceProfile {
         // Don't let the folder get too close to the edges of the screen.
         folderCellWidthPx = Math.min(cellWidthPx + folderCellPadding,
                 (availableWidthPx - 4 * edgeMarginPx) / inv.numFolderColumns);
-        folderCellHeightPx = cellHeightPx + edgeMarginPx;
+        folderCellHeightPx = cellHeightPx + 3*edgeMarginPx;//将edgeMarginPx 改为 3*edgeMarginPx 增大文件夹里的cell的高度
         folderBackgroundOffset = -edgeMarginPx;
         folderIconSizePx = iconSizePx + 2 * -folderBackgroundOffset;
     }
