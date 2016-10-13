@@ -22,7 +22,6 @@ public class UnreadContentObserver {
     private static final String TAGzhao = "zhao11unread.UnreadContentObserver";
     private  UnreadContentObserver(Context context){
         mcontext = context;
-        registerObserver();
     }
 
     public static UnreadContentObserver getUnreadContentObserver(Context context){
