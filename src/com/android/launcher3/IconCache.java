@@ -113,6 +113,7 @@ public class IconCache {
     private Bitmap mLowResBitmap;
     private Canvas mLowResCanvas;
     private Paint mLowResPaint;
+    private boolean isDynamCalender =false;//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
 
     public IconCache(Context context, InvariantDeviceProfile inv) {
         mContext = context;
@@ -135,6 +136,7 @@ public class IconCache {
         // automatically be loaded as ALPHA_8888.
         mLowResOptions.inPreferredConfig = Bitmap.Config.RGB_565;
         updateSystemStateString();
+        isDynamCalender = context.getResources().getBoolean(R.bool.support_calendar_icon);//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
     }
 
     private Drawable getFullResDefaultActivityIcon() {
@@ -386,8 +388,14 @@ public class IconCache {
         }
         if (entry == null) {
             entry = new CacheEntry();
+            //Modify BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
+            if(isDynamCalender && app.getComponentName().getPackageName().equals("com.android.calendar")){
+                entry.icon = Utilities.createCalendarIconBitmap(app.getIcon(mIconDpi), mContext);
+            }else{
             entry.icon = Utilities.createBadgedIconBitmap(
                     app.getIcon(mIconDpi), app.getUser(), mContext);
+            }
+            //Modify BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
         }
         entry.title = app.getLabel();
         entry.contentDescription = mUserManager.getBadgedLabelForUser(entry.title, app.getUser());
@@ -538,6 +546,7 @@ public class IconCache {
      * Retrieves the entry from the cache. If the entry is not present, it creates a new entry.
      * This method is not thread safe, it must be called from a synchronized method.
      */
+    boolean isCalenderInfo;//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
     private CacheEntry cacheLocked(ComponentName componentName, LauncherActivityInfoCompat info,
             UserHandleCompat user, boolean usePackageIcon, boolean useLowResIcon) {
         if (LauncherLog.DEBUG_LAYOUT) {
@@ -547,15 +556,27 @@ public class IconCache {
 
         ComponentKey cacheKey = new ComponentKey(componentName, user);
         CacheEntry entry = mCache.get(cacheKey);
-        if (entry == null || (entry.isLowResIcon && !useLowResIcon)) {
+        //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
+        isCalenderInfo= false;
+        if (info != null){
+            isCalenderInfo = info.getApplicationInfo().packageName.equals("com.android.calendar");
+        }
+        //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
+        if (isCalenderInfo ||entry == null || (entry.isLowResIcon && !useLowResIcon)) {
             entry = new CacheEntry();
             mCache.put(cacheKey, entry);
 
             // Check the DB first.
-            if (!getEntryFromDB(cacheKey, entry, useLowResIcon)) {
+            if (isCalenderInfo || !getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 if (info != null) {
+                    //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
+                    if(isCalenderInfo && isDynamCalender) {
+                        entry.icon = Utilities.createCalendarIconBitmap(info.getIcon(mIconDpi), mContext);
+                    }else{
+                    //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
                     entry.icon = Utilities.createBadgedIconBitmap(
                             info.getIcon(mIconDpi), info.getUser(), mContext);
+                    }
                 } else {
                     if (usePackageIcon) {
                         CacheEntry packageEntry = getEntryForPackageLocked(
@@ -647,8 +668,14 @@ public class IconCache {
                     if (appInfo == null) {
                         throw new NameNotFoundException("ApplicationInfo is null");
                     }
+                    //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
+                    if(isDynamCalender && packageName.equals("com.android.calendar")){
+                        entry.icon = Utilities.createCalendarIconBitmap(appInfo.loadIcon(mPackageManager), mContext);
+                    }else{
                     entry.icon = Utilities.createBadgedIconBitmap(
                             appInfo.loadIcon(mPackageManager), user, mContext);
+                    }
+                    //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
                     entry.title = appInfo.loadLabel(mPackageManager);
                     entry.contentDescription = mUserManager.getBadgedLabelForUser(entry.title, user);
                     entry.isLowResIcon = false;
