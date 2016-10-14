@@ -178,4 +178,6 @@
     <dimen name="unread_text_margin">8dp</dimen>
     <dimen name="unread_text_number_size">14sp</dimen>
     <dimen name="unread_text_plus_size">10sp</dimen>
+    <dimen name="folder_available_icon_space">56dp</dimen>
+    <dimen name="folder_available_icon_height">6dp</dimen>
 </resources>

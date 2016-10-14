@@ -223,7 +223,7 @@ public class DeviceProfile {
         tallSearchBarNegativeTopPaddingPx = res.getDimensionPixelSize(
                 R.dimen.dynamic_grid_search_bar_negative_top_padding_short);
         if (isTablet && !isVerticalBarLayout()) {
-            searchBarTopPaddingPx = searchBarWidgetInternalPaddingTop;
+            searchBarTopPaddingPx =  searchBarWidgetInternalPaddingTop;
             normalSearchBarBottomPaddingPx = searchBarWidgetInternalPaddingBottom +
                     res.getDimensionPixelSize(R.dimen.dynamic_grid_search_bar_bottom_padding_tablet);
             tallSearchBarBottomPaddingPx = normalSearchBarBottomPaddingPx;
@@ -257,8 +257,10 @@ public class DeviceProfile {
         folderCellWidthPx = Math.min(cellWidthPx + folderCellPadding,
                 (availableWidthPx - 4 * edgeMarginPx) / inv.numFolderColumns);
         folderCellHeightPx = cellHeightPx + 3*edgeMarginPx;//将edgeMarginPx 改为 3*edgeMarginPx 增大文件夹里的cell的高度
-        folderBackgroundOffset = -edgeMarginPx;
-        folderIconSizePx = iconSizePx + 2 * -folderBackgroundOffset;
+        //modify by zhaopenglin for folder icon style start
+        //这个修改是让文件夹的那个框框和应用的图标一样大
+        folderBackgroundOffset = 0;// -edgeMarginPx;
+        folderIconSizePx = iconSizePx;// iconSizePx + 2 * -folderBackgroundOffset;
     }
 
     /**
