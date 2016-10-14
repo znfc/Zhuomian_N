@@ -1670,9 +1670,19 @@ public class LauncherModel extends BroadcastReceiver
 
                 // second step
                 if (DEBUG_LOADERS) Log.d(TAG, "step 2: loading all apps");
-                loadAndBindAllApps();
+                //单层结构的话allapp就只用加载数据不用绑定数据了
+                loadAllApps();//add by zhaopenglin for hide allapp 20160816
+//                loadAndBindAllApps();
             }
-
+            //下边这个判断放在这里很好，这个时候allapp数据已经加载（获得）好了，再做这个验证是否桌面上有
+            // 这个图标没有的话就加上，好处是万一消失了一个图标重启后就会重新添加上
+            //add by zhaopenglin for hide allapp 20160816 start
+            if (LauncherAppState.isHideAllApps()) {
+                // Ensure that all the applications that are in the system are
+                // represented on the home screen.
+                verifyApplications();
+            }
+            //add by zhaopenglin for hide allapp 20160816 end
             // Clear out this reference, otherwise we end up holding it until all of the
             // callback runnables are done.
             mContext = null;
@@ -3225,6 +3235,8 @@ public class LauncherModel extends BroadcastReceiver
             final HashMap<ComponentName, AppInfo> addedOrUpdatedApps = new HashMap<>();
 
             if (added != null) {
+                //添加这个就会使新安装的应用在桌面上创建新的icon
+                addAndBindAddedWorkspaceItems(context,added);//add by zhaopenglin for hide allapp 20160816
                 addAppsToAllApps(context, added);
                 for (AppInfo ai : added) {
                     addedOrUpdatedApps.put(ai.componentName, ai);
@@ -3805,4 +3817,32 @@ public class LauncherModel extends BroadcastReceiver
     public static Looper getWorkerLooper() {
         return sWorkerThread.getLooper();
     }
+
+    //add by zhaopenglin for hide allapp 20160816 start
+    private void verifyApplications() {
+        final Context context = mApp.getContext();
+
+        // Cross reference all the applications in our apps list with items in the workspace
+        ArrayList<ItemInfo> tmpInfos;
+        ArrayList<ItemInfo> added = new ArrayList<ItemInfo>();
+        synchronized (sBgLock) {
+            for (AppInfo app : mBgAllAppsList.data) {
+                //这个方法看样子就是找app是不是已经在workspace上了
+                //不过我的疑问是为什么它返回了一个列表？
+                //解答：在双层结构中workspace上同一个应用的icon可能有多个
+                tmpInfos = getItemInfoForComponentName(app.componentName, app.user);
+                if (tmpInfos.isEmpty()) {
+                    // We are missing an application icon, so add this to the workspace
+                    added.add(app);
+                    // This is a rare event, so lets log it
+                    Log.e(TAG, "Missing Application on load: " + app);
+                }
+            }
+        }
+
+        if (!added.isEmpty()) {
+            addAndBindAddedWorkspaceItems(context,added);
+        }
+    }
+    //add by zhaopenglin for hide allapp 20160816 end
 }

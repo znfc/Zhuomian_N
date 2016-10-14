@@ -971,17 +971,17 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
     @Override
     public boolean supportsFlingToDelete() {
-        return true;
+        return false;//modify true to false by zhaopenglin for hide allapp 20160816
     }
 
     @Override
     public boolean supportsAppInfoDropTarget() {
-        return false;
+        return true;//modify false to true by zhaopenglin for hide allapp 20160816
     }
 
     @Override
     public boolean supportsDeleteDropTarget() {
-        return true;
+        return false;//modify true to false by zhaopenglin for hide allapp 20160816
     }
 
     @Override

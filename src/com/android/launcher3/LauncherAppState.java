@@ -130,6 +130,12 @@ public class LauncherAppState {
         }, filter1);
     }
 
+    //add by zhaopenglin for hide allapp 20160816 start
+    public static boolean isHideAllApps() {
+        return true;
+    }
+    //add by zhaopenglin for hide allapp 20160816 end
+
     /**
      * Call from Application.onTerminate(), which is not guaranteed to ever be called.
      */

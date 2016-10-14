@@ -4157,7 +4157,16 @@ public class Workspace extends PagedView
 
         if (success && !(beingCalledAfterUninstall && !mUninstallSuccessful)) {
             if (target != this && mDragInfo != null) {
-                removeWorkspaceItem(mDragInfo.cell);
+                //Modify by zhaopenglin for hide allapp 20160816 start
+                //这句话的修改目的是修改拖动icon到应用信息后workspace上的icon消失
+                //就是这个拖拽结束方法里执行了下边这句话把图标删除了。
+                //20160921 修改为下边的if else 是为了在workspace上删除widget
+                if(mDragInfo.cell.getTag() instanceof LauncherAppWidgetInfo){
+                    removeWorkspaceItem(mDragInfo.cell);
+                }else {
+                    mDragInfo.cell.setVisibility(VISIBLE);
+                }
+                //modify by zhaopenglin for hide allapp 20160816
             }
         /// M: [ALPS01257939] Check if target is null.
         } else if (mDragInfo != null && target != null) {
@@ -4283,17 +4292,17 @@ public class Workspace extends PagedView
 
     @Override
     public boolean supportsFlingToDelete() {
-        return true;
+        return false;//modify by zhaopenglin for hide allapp 20160816
     }
 
     @Override
     public boolean supportsAppInfoDropTarget() {
-        return false;
+        return true;//modify by zhaopenglin for hide allapp 20160816
     }
 
     @Override
     public boolean supportsDeleteDropTarget() {
-        return true;
+        return false;//modify by zhaopenglin for hide allapp 20160816
     }
 
     @Override

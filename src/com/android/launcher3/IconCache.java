@@ -789,7 +789,6 @@ public class IconCache {
                         entry.icon = Utilities.createCalendarIconBitmap(
                                 appInfo.loadIcon(mPackageManager), mContext);
                     }else{
-                        entry.icon = getThemeIocn(cacheKey.componentName);
                         //modify by zhaopenglin for mask icon 20160816 start
 //                    entry.icon = Utilities.createBadgedIconBitmap(
 //                            appInfo.loadIcon(mPackageManager), user, mContext);
