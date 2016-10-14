@@ -52,6 +52,8 @@ import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.SQLiteCacheHelper;
 import com.android.launcher3.util.Thunk;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -591,6 +593,7 @@ public class IconCache {
      * This method is not thread safe, it must be called from a synchronized method.
      */
     boolean isCalenderInfo;//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
+    Drawable mIcon;
     private CacheEntry cacheLocked(ComponentName componentName, LauncherActivityInfoCompat info,
             UserHandleCompat user, boolean usePackageIcon, boolean useLowResIcon) {
         if (LauncherLog.DEBUG_LAYOUT) {
@@ -617,14 +620,20 @@ public class IconCache {
                     if(isCalenderInfo && isDynamCalender) {
                         entry.icon = Utilities.createCalendarIconBitmap(info.getIcon(mIconDpi), mContext);
                     }else{
-                    //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
-                    //modify by zhaopenglin for mask icon 20160816 start
+                        mIcon = getThemeIocn(componentName);
+                        if(mIcon == null) {
+                            //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
+                            //modify by zhaopenglin for mask icon 20160816 start
 //                    entry.icon = Utilities.createBadgedIconBitmap(
 //                            info.getIcon(mIconDpi), info.getUser(), mContext);
-                    entry.icon = Utilities.createIconBitmapWithMask(
-                            info.getIcon(mIconDpi), maskBitmap, bgBitmap, mContext
-                            , info.getUser(),verifyAppNoNeedMask(info.getApplicationInfo().packageName));
-                    //modify by zhaopenglin for mask icon 20160816 end
+                            entry.icon = Utilities.createIconBitmapWithMask(
+                                    info.getIcon(mIconDpi), maskBitmap, bgBitmap, mContext
+                                    , info.getUser(), verifyAppNoNeedMask(info.getApplicationInfo().packageName));
+                            //modify by zhaopenglin for mask icon 20160816 end
+                        }else {
+                    entry.icon = Utilities.createBadgedIconBitmap(
+                            mIcon, info.getUser(), mContext);
+                        }
                     }
                 } else {
                     if (usePackageIcon) {
@@ -664,6 +673,57 @@ public class IconCache {
 
         return entry;
     }
+
+    // add by zhaopenglin for theme start
+    private String[] mIconsArray;
+
+    private InputStream getIconsInputStream(InputStream is, String className, String path, String unit) {
+        try {
+            if (mIconsArray == null) {
+                mIconsArray = mContext.getAssets().list(path);
+            }
+            int index = Arrays.binarySearch(mIconsArray, className + unit);
+            Log.i("zhaoicon","index:"+index+",filename:"+className);
+            if (index >= 0) {
+                is = mContext.getAssets().open(path + "/" + className + unit);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return is;
+    }
+
+    private Drawable getThemeIocn(ComponentName labelKey) {
+        Drawable icon = null;
+        if (labelKey != null && !TextUtils.isEmpty(labelKey.getPackageName())
+                && !TextUtils.isEmpty(labelKey.getClassName())) {
+//            Log.i("zhaoicon","labelKey.getClassName():"+labelKey.getClassName());
+            InputStream is = null;
+            try {
+                String path = "icon3";
+                String unit = ".png";
+                String className = labelKey.getClassName();//.replace("&", ".");
+                is = getIconsInputStream(is, className, path, unit);
+//                Log.i("zhaoicon","is:"+is);
+
+                if (is != null) {
+                    icon = Drawable.createFromStream(is, null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return icon;
+    }
+    // add by zhaopenglin for theme end
 
     /**
      * Adds a default package entry in the cache. This entry is not persisted and will be removed
@@ -726,8 +786,10 @@ public class IconCache {
                     }
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
                     if(isDynamCalender && packageName.equals("com.android.calendar")){
-                        entry.icon = Utilities.createCalendarIconBitmap(appInfo.loadIcon(mPackageManager), mContext);
+                        entry.icon = Utilities.createCalendarIconBitmap(
+                                appInfo.loadIcon(mPackageManager), mContext);
                     }else{
+                        entry.icon = getThemeIocn(cacheKey.componentName);
                         //modify by zhaopenglin for mask icon 20160816 start
 //                    entry.icon = Utilities.createBadgedIconBitmap(
 //                            appInfo.loadIcon(mPackageManager), user, mContext);
