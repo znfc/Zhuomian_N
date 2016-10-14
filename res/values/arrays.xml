@@ -11,4 +11,17 @@
         <item>Saturday</item>
     </string-array>
     <!--Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end) -->
+    <!--add by zhaopenglin for mask icon 20160816 start-->
+    <string-array name = "no_need_maskicon" >
+        <!--add packagename for no need maskicon-->
+        <!--
+        <item>com.android.dialer</item>
+        <item>com.android.contacts</item>
+        <item>com.android.mms</item>
+        <item>com.android.settings</item>
+        <item>com.android.calculator2</item>
+        <item>com.android.deskclock</item>
+        -->
+    </string-array>
+    <!--add by zhaopenglin for mask icon 20160816 end-->
 </resources>

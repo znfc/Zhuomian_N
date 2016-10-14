@@ -42,6 +42,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -204,6 +206,46 @@ public final class Utilities {
         }
         return createIconBitmap(new BitmapDrawable(context.getResources(), icon), context);
     }
+
+    //add by zhaopenglin for mask icon 20160816 start
+    static Bitmap createIconBitmapWithMask(Drawable icon, Bitmap maskIcon, Bitmap bgIcon,
+                                           Context context, UserHandleCompat user, boolean noNeedMask) {
+        Bitmap composeBitmap ;
+        if(user == null){
+            composeBitmap = createIconBitmap(icon, context);
+        }else {
+            composeBitmap = createBadgedIconBitmap(icon, user, context);
+        }
+        if(noNeedMask||(maskIcon == null & bgIcon == null)) return composeBitmap;
+        int width = composeBitmap.getWidth();
+        int height = composeBitmap.getHeight();
+
+        //定义期望大小的bitmap
+        Bitmap dstBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        //定义一个画布
+        Canvas canvas = new Canvas(dstBmp);
+
+        //创建一个取消锯齿画笔
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        if(maskIcon != null) {
+            maskIcon = Bitmap.createScaledBitmap(maskIcon, width, height, true);
+            //将蒙版图片绘制成imageview本身的大小,这样从大小才会和UE标注的一样大
+            canvas.drawBitmap(maskIcon, 0, 0, paint);
+        }
+        //设置两张图片的相交模式
+        //至于这个函数介绍参考网址:http://blog.csdn.net/wm111/article/details/7299294
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
+        //在已经绘制的mask上叠加bitmap
+        canvas.drawBitmap(composeBitmap, 0, 0, paint);
+        //设置交互模式 -- 背景框在底层
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+        if(bgIcon != null) {
+            bgIcon = Bitmap.createScaledBitmap(bgIcon, width, height, true);
+            canvas.drawBitmap(bgIcon, 0, 0, paint);
+        }
+        return dstBmp;
+    }
+    //add by zhaopenglin for mask icon 20160816 end
 
     /**
      * Returns a bitmap suitable for the all apps view. The icon is badged for {@param user}.

@@ -35,6 +35,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -61,6 +62,11 @@ import java.util.Stack;
 
 import com.mediatek.launcher3.LauncherLog;
 
+
+//modify by zhaopenglin for mask icon 20160816 start
+import java.util.ArrayList;
+import java.util.Arrays;
+//modify by zhaopenglin for mask icon 20160816 end
 /**
  * Cache of application icons.  Icons can be made from any thread.
  */
@@ -88,7 +94,11 @@ public class IconCache {
 
     private final HashMap<UserHandleCompat, Bitmap> mDefaultIcons = new HashMap<>();
     @Thunk final MainThreadExecutor mMainThreadExecutor = new MainThreadExecutor();
-
+    //add by zhaopenglin for mask icon 20160816 start
+    private final Bitmap bgBitmap;//背景框
+    private final Bitmap maskBitmap;//mask蒙版
+    private List<String> noNeedMaskicon = new ArrayList<String>();
+    //add by zhaopenglin for mask icon 20160816 end
     private final Context mContext;
     private final PackageManager mPackageManager;
     @Thunk final UserManagerCompat mUserManager;
@@ -136,8 +146,37 @@ public class IconCache {
         // automatically be loaded as ALPHA_8888.
         mLowResOptions.inPreferredConfig = Bitmap.Config.RGB_565;
         updateSystemStateString();
+        //add by zhaopenglin for mask icon 20160816 start
+        maskBitmap = getMaskBitmap();
+        bgBitmap =getBitmap();
+        noNeedMaskicon = Arrays.asList(mContext.getResources()
+                .getStringArray(R.array.no_need_maskicon));
+        //add by zhaopenglin for mask icon 20160816 end
         isDynamCalender = context.getResources().getBoolean(R.bool.support_calendar_icon);//Add BUG_ID:DWYSBM-79 zhaopenglin 20160602
     }
+
+    //add by zhaopenglin for mask icon 20160816 start
+    //获得mask
+    private Bitmap getMaskBitmap() {
+        if(maskBitmap == null || maskBitmap.isRecycled()){
+             return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mask25);
+        }else return null;
+    }
+    //获得背景框
+    private Bitmap getBitmap() {
+        if(bgBitmap == null || bgBitmap.isRecycled()){
+            return BitmapFactory.decodeResource(mContext.getResources(), R.drawable.bgicon25_40);
+        }else return null;
+    }
+    private boolean verifyAppNoNeedMask(String pakName){
+        if(noNeedMaskicon == null) return false;
+        if(noNeedMaskicon.contains(pakName)) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+    //add by zhaopenglin for mask icon 20160816 start
 
     private Drawable getFullResDefaultActivityIcon() {
         return getFullResIcon(Resources.getSystem(), android.R.mipmap.sym_def_app_icon);
@@ -381,7 +420,7 @@ public class IconCache {
         CacheEntry entry = null;
         if (!replaceExisting) {
             entry = mCache.get(key);
-            // We can't reuse the entry if the high-res icon is not present.
+            // we can't reuse the entry if the high-res icon is not present.
             if (entry == null || entry.isLowResIcon || entry.icon == null) {
                 entry = null;
             }
@@ -392,8 +431,13 @@ public class IconCache {
             if(isDynamCalender && app.getComponentName().getPackageName().equals("com.android.calendar")){
                 entry.icon = Utilities.createCalendarIconBitmap(app.getIcon(mIconDpi), mContext);
             }else{
-            entry.icon = Utilities.createBadgedIconBitmap(
-                    app.getIcon(mIconDpi), app.getUser(), mContext);
+            //modify by zhaopenglin for mask icon 20160816 end
+//            entry.icon = Utilities.createBadgedIconBitmap(
+//                    app.getIcon(mIconDpi), app.getUser(), mContext);
+            entry.icon = Utilities.createIconBitmapWithMask(
+                    app.getIcon(mIconDpi), maskBitmap, bgBitmap, mContext,app.getUser(),
+                    verifyAppNoNeedMask(app.getApplicationInfo().packageName));
+            //modify by zhaopenglin for mask icon 20160816 end
             }
             //Modify BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
         }
@@ -574,8 +618,13 @@ public class IconCache {
                         entry.icon = Utilities.createCalendarIconBitmap(info.getIcon(mIconDpi), mContext);
                     }else{
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
-                    entry.icon = Utilities.createBadgedIconBitmap(
-                            info.getIcon(mIconDpi), info.getUser(), mContext);
+                    //modify by zhaopenglin for mask icon 20160816 start
+//                    entry.icon = Utilities.createBadgedIconBitmap(
+//                            info.getIcon(mIconDpi), info.getUser(), mContext);
+                    entry.icon = Utilities.createIconBitmapWithMask(
+                            info.getIcon(mIconDpi), maskBitmap, bgBitmap, mContext
+                            , info.getUser(),verifyAppNoNeedMask(info.getApplicationInfo().packageName));
+                    //modify by zhaopenglin for mask icon 20160816 end
                     }
                 } else {
                     if (usePackageIcon) {
@@ -636,7 +685,13 @@ public class IconCache {
             entry.title = title;
         }
         if (icon != null) {
-            entry.icon = Utilities.createIconBitmap(icon, mContext);
+            //modify by zhaopenglin for mask icon 20160816 start
+            //entry.icon = Utilities.createIconBitmap(icon, mContext);
+            entry.icon = Utilities.createIconBitmapWithMask(
+                    new BitmapDrawable(
+                            mContext.getResources(), icon), maskBitmap, bgBitmap, mContext,null,
+                    verifyAppNoNeedMask(packageName));
+            //modify by zhaopenglin for mask icon 20160816 end
         }
     }
 
@@ -648,6 +703,7 @@ public class IconCache {
     /**
      * Gets an entry for the package, which can be used as a fallback entry for various components.
      * This method is not thread safe, it must be called from a synchronized method.
+     * 这个方法里的icon是widget获得的（反正改完这个方法后widget里的icon也被换掉了）
      */
     private CacheEntry getEntryForPackageLocked(String packageName, UserHandleCompat user,
             boolean useLowResIcon) {
@@ -672,8 +728,12 @@ public class IconCache {
                     if(isDynamCalender && packageName.equals("com.android.calendar")){
                         entry.icon = Utilities.createCalendarIconBitmap(appInfo.loadIcon(mPackageManager), mContext);
                     }else{
-                    entry.icon = Utilities.createBadgedIconBitmap(
-                            appInfo.loadIcon(mPackageManager), user, mContext);
+                        //modify by zhaopenglin for mask icon 20160816 start
+//                    entry.icon = Utilities.createBadgedIconBitmap(
+//                            appInfo.loadIcon(mPackageManager), user, mContext);
+                        entry.icon = Utilities.createIconBitmapWithMask(appInfo.loadIcon(mPackageManager),
+                                maskBitmap,bgBitmap,mContext,user,verifyAppNoNeedMask(packageName));
+                        //modify by zhaopenglin for mask icon 20160816 end
                     }
                     //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
                     entry.title = appInfo.loadLabel(mPackageManager);
