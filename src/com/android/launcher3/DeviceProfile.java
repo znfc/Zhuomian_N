@@ -471,6 +471,7 @@ public class DeviceProfile {
             // Horizontal search bar space
             lp.gravity = Gravity.TOP|Gravity.CENTER_HORIZONTAL;
         }
+        lp.topMargin -= 40;// 把删除按钮往上调 //add by zhaopenglin for rm Qsb 20160816
         searchBar.setLayoutParams(lp);
 
         // Layout the workspace
@@ -478,6 +479,11 @@ public class DeviceProfile {
         lp = (FrameLayout.LayoutParams) workspace.getLayoutParams();
         lp.gravity = Gravity.CENTER;
         Rect padding = getWorkspacePadding(isLayoutRtl);
+        //add by zhaopenglin for rm Qsb 20160816 start
+        //把workspace的区域调大
+        lp.topMargin -= 30;
+        //lp.bottomMargin -=15;
+        //add by zhaopenglin for rm Qsb 20160816 end
         workspace.setLayoutParams(lp);
         workspace.setPadding(padding.left, padding.top, padding.right, padding.bottom);
         workspace.setPageSpacing(getWorkspacePageSpacing(isLayoutRtl));

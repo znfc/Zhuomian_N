@@ -3485,6 +3485,33 @@ public class Launcher extends Activity
         }
         return true;
     }
+    //add by zhaopenglin for rm Qsb 20160816 start
+    //显示系统状态栏
+    public void showStatusBar() {
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION//隐藏状态栏的布局
+//                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN//内容布局填满屏幕
+        );
+
+    }
+
+    //隐藏系统状态栏
+    public void hideStatusBar() {
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION//隐藏状态栏的布局
+//                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN//内容布局填满屏幕
+//                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION//隐藏状态栏(三个虚拟键)
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN//内容全屏展示（这句必须要，其他三句可要可不要）
+//                        | View.SYSTEM_UI_FLAG_IMMERSIVE
+        );
+    }
+    //add by zhaopenglin for rm Qsb 20160816 end
 
     boolean isHotseatLayout(View layout) {
         return mHotseat != null && layout != null &&
@@ -3830,6 +3857,8 @@ public class Launcher extends Activity
     }
 
     public View getOrCreateQsbBar() {
+        //return null 就可以达到去掉QSB bar的目的
+        if(getResources().getBoolean(R.bool.is_rm_qsb)) return null;//add by zhaopenglin for rm Qsb 20160816
         if (launcherCallbacksProvidesSearch()) {
             return mLauncherCallbacks.getQsbBar();
         }

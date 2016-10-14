@@ -103,4 +103,5 @@
      <integer name="config_landscape_x">5</integer>
      <integer name="config_landscape_y">3</integer>
     <bool name="support_calendar_icon">true</bool><!--Add BUG_ID:DWYSBM-79 zhaopenglin 20160602  -->
+    <bool name="is_rm_qsb">true</bool><!--Add zhaopenglin for rm Qsb 20160714-->
 </resources>

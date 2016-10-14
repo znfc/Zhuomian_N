@@ -19,7 +19,7 @@
 
 <!-- Dynamic Grid -->
     <dimen name="dynamic_grid_edge_margin">6dp</dimen>
-    <dimen name="dynamic_grid_search_bar_height">48dp</dimen>
+    <dimen name="dynamic_grid_search_bar_height">15dp</dimen>
     <!-- We want 46dp extra for the tall search bar. -->
     <dimen name="dynamic_grid_search_bar_height_tall">94dp</dimen>
     <dimen name="qsb_internal_padding_top">8dp</dimen>
