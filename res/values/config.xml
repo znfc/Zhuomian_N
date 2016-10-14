@@ -102,4 +102,5 @@
     <bool name="config_unreadSupport">true</bool>
      <integer name="config_landscape_x">5</integer>
      <integer name="config_landscape_y">3</integer>
+    <bool name="support_calendar_icon">true</bool><!--Add BUG_ID:DWYSBM-79 zhaopenglin 20160602  -->
 </resources>
