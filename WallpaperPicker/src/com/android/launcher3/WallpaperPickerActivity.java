@@ -306,6 +306,8 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
 
                 @Override
                 public float getScale(Point wallpaperSize, RectF crop) {
+                    //添加下边是重新计算切图比例 add by zhaopenglin for single wallpaper 20161024
+                    wallpaperSize.x = (int)(crop.width()/crop.height() * wallpaperSize.y);
                     return wallpaperSize.x /crop.width();
                 }
 

@@ -105,11 +105,30 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param inWidth 这个是实际壁纸的宽度
+     * @param inHeight 这个是实际壁纸的高度
+     * @param outWidth 这个是要剪切的矩形的宽
+     * @param outHeight 这个是要剪切的矩形的高
+     * @param leftAligned
+     * @return
+     */
     public static RectF getMaxCropRect(
             int inWidth, int inHeight, int outWidth, int outHeight, boolean leftAligned) {
+        Log.i("zhao11","inWidth:"+inWidth+",inHeight:"+inHeight+",outWidth:"+outWidth+",outHeight:"+outHeight);
         RectF cropRect = new RectF();
         // Get a crop rect that will fit this
-        if (inWidth / (float) inHeight > outWidth / (float) outHeight) {
+        //add by zhaopenglin for single wallpaper 20161024 start
+        //下边这个判断是处理壁纸宽度比例小于一屏的宽度的情况
+        if (inWidth / (float) inHeight < outWidth / 2 / (float) outHeight) {
+            cropRect.left = 0;
+            cropRect.right = inWidth;
+            cropRect.top = (inHeight - (outHeight*2 / (float)outWidth )*inWidth)/2;
+            cropRect.bottom = inHeight - cropRect.top;
+            Log.i("zhao112222","left:"+cropRect.left+",right:"+cropRect.right+",top:"+cropRect.top+",bottom:"+cropRect.bottom);
+        //下边这个判断是处理壁纸宽度比例大于两屏的宽度的情况
+        }else if (inWidth / (float) inHeight > outWidth / (float) outHeight) {
              cropRect.top = 0;
              cropRect.bottom = inHeight;
              cropRect.left = (inWidth - (outWidth / (float) outHeight) * inHeight) / 2;
@@ -118,12 +137,17 @@ public class Utils {
                  cropRect.right -= cropRect.left;
                  cropRect.left = 0;
              }
+             Log.i("zhao1122","left:"+cropRect.left+",right:"+cropRect.right+",top:"+cropRect.top+",bottom:"+cropRect.bottom);
+        //剩下这个就是介于单屏和双屏之间的
         } else {
             cropRect.left = 0;
             cropRect.right = inWidth;
-            cropRect.top = (inHeight - (outHeight / (float) outWidth) * inWidth) / 2;
-            cropRect.bottom = inHeight - cropRect.top;
+            cropRect.top = 0;
+            cropRect.bottom = inHeight;
         }
+        //add by zhaopenglin for single wallpaper 20161024 end
+        Log.i("zhao11","left:"+cropRect.left+",right:"+cropRect.right+",top:"+cropRect.top+",bottom:"+cropRect.bottom);
+        Log.i("zhao11","getMaxCropRect xxx:"+cropRect.width()+",yyyyyy:"+cropRect.height());
         return cropRect;
     }
 }
