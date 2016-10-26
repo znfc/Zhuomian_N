@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,10 +41,14 @@ public class ThirdPartyWallpaperPickerListAdapter extends BaseAdapter implements
     private final LayoutInflater mInflater;
     private final PackageManager mPackageManager;
     private final int mIconSize;
+    static final String TAGzhao = "zhaoWallpaperPickerActivity";
 
     private List<ThirdPartyWallpaperTile> mThirdPartyWallpaperPickers =
             new ArrayList<ThirdPartyWallpaperTile>();
 
+    /**
+     * 三方的设置壁纸软件接口
+     */
     public static class ThirdPartyWallpaperTile extends WallpaperPickerActivity.WallpaperTileInfo {
         @Thunk ResolveInfo mResolveInfo;
         public ThirdPartyWallpaperTile(ResolveInfo resolveInfo) {
@@ -51,6 +56,7 @@ public class ThirdPartyWallpaperPickerListAdapter extends BaseAdapter implements
         }
         @Override
         public void onClick(WallpaperPickerActivity a) {
+            Log.i(TAGzhao,"ThirdPartyWallpaperTile");
             final ComponentName itemComponentName = new ComponentName(
                     mResolveInfo.activityInfo.packageName, mResolveInfo.activityInfo.name);
             Intent launchIntent = new Intent(Intent.ACTION_SET_WALLPAPER);

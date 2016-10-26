@@ -508,6 +508,13 @@ public class WallpaperCropActivity extends BaseActivity implements Handler.Callb
     }
 
     public static class CropViewScaleAndOffsetProvider {
+        /**
+         *
+         * @param wallpaperSize 这个是屏幕实际的大小
+         *                      比如720*1280的手机获得的wallpaperSize就是1440*1280
+         * @param crop 这个是剪切壁纸的矩形框的实际大小
+         * @return 屏幕的大小和实际剪切完壁纸的的比例。
+         */
         public float getScale(Point wallpaperSize, RectF crop) {
             return 1f;
         }

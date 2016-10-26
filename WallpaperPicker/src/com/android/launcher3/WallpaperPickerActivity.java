@@ -96,6 +96,7 @@ import java.util.ArrayList;
 
 public class WallpaperPickerActivity extends WallpaperCropActivity {
     static final String TAG = "WallpaperPickerActivity";
+    static final String TAGzhao = "zhaoWallpaperPickerActivity";
 
     public static final int IMAGE_PICK = 5;
     public static final int PICK_WALLPAPER_THIRD_PARTY_ACTIVITY = 6;
@@ -127,9 +128,14 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
     private static final String EXTRA_DRM_LEVEL = "android.intent.extra.drm_level";
     private static final int LEVEL_FL = 1;
 
+    /**
+     * 设置壁纸的时候我们在同一个列表里边可以看到有我们配置的壁纸，图库，三方壁纸，动态壁纸
+     * 但是这几种壁纸显示在同一个列表里事件是基本相似的，所以将可以是配到列表的“壁纸”抽象出来
+     * 一个类，方便同一匹配
+     */
     public static abstract class WallpaperTileInfo {
-        protected View mView;
-        public Drawable mThumb;
+        protected View mView;//这个view貌似是添加在linearLayout的子view，和下边的mThub的关系暂不明确
+        public Drawable mThumb;//这个就是显示在预览壁纸下边的缩略图
 
         public void setView(View v) {
             mView = v;
@@ -146,9 +152,13 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
     }
 
+    /**
+     * 这个类是“我的照片”这类的图片信息
+     */
     public static class PickImageInfo extends WallpaperTileInfo {
         @Override
         public void onClick(WallpaperPickerActivity a) {
+            Log.i(TAGzhao,"PickImageInfo");
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
 
@@ -166,6 +176,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
         @Override
         public void onClick(final WallpaperPickerActivity a) {
+            Log.i(TAGzhao,"UriWallpaperInfo");
             a.setWallpaperButtonEnabled(false);
             final BitmapRegionTileSource.UriBitmapSource bitmapSource =
                     new BitmapRegionTileSource.UriBitmapSource(a.getContext(), mUri);
@@ -254,6 +265,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
         @Override
         public void onClick(final WallpaperPickerActivity a) {
+            Log.i(TAGzhao,"FileWallpaperInfo");
             a.setWallpaperButtonEnabled(false);
             final BitmapRegionTileSource.UriBitmapSource bitmapSource =
                     new BitmapRegionTileSource.UriBitmapSource(a.getContext(), Uri.fromFile(mFile));
@@ -288,6 +300,9 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
     }
 
+    /**
+     * 配置的壁纸资源
+     */
     public static class ResourceWallpaperInfo extends WallpaperTileInfo {
         private Resources mResources;
         private int mResId;
@@ -299,6 +314,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
         @Override
         public void onClick(final WallpaperPickerActivity a) {
+            Log.i(TAGzhao,"ResourceWallpaperInfo");
             a.setWallpaperButtonEnabled(false);
             final BitmapRegionTileSource.ResourceBitmapSource bitmapSource =
                     new BitmapRegionTileSource.ResourceBitmapSource(mResources, mResId);
@@ -342,6 +358,9 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
     }
 
+    /**
+     * 默认壁纸选项
+     */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static class DefaultWallpaperInfo extends WallpaperTileInfo {
         public DefaultWallpaperInfo(Drawable thumb) {
@@ -349,6 +368,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
         }
         @Override
         public void onClick(WallpaperPickerActivity a) {
+            Log.i(TAGzhao,"DefaultWallpaperInfo");
             CropView c = a.getCropView();
 
             if (a.mProgressView != null) {
@@ -552,6 +572,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
 
         mThumbnailOnClickListener = new OnClickListener() {
             public void onClick(View v) {
+                Log.i(TAGzhao,"点击了");
                 if (mActionMode != null) {
                     // When CAB is up, clicking toggles the item instead
                     if (v.isLongClickable()) {
@@ -1138,6 +1159,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
             }
         }
 
+        //这个就是获得我们自己配置的壁纸然后添加到bundled里
         Pair<ApplicationInfo, Integer> r = getWallpaperArrayResourceId();
         if (r != null) {
             try {
@@ -1147,7 +1169,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
             } catch (PackageManager.NameNotFoundException e) {
             }
         }
-
+        //这个就是获得我们的默认壁纸然后添加到bundled里
         if (partner == null || !partner.hideDefaultWallpaper()) {
             // Add an entry for the default wallpaper (stored in system resources)
             WallpaperTileInfo defaultWallpaperInfo = Utilities.ATLEAST_KITKAT
