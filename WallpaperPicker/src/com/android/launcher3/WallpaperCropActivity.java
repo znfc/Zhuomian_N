@@ -191,7 +191,7 @@ public class WallpaperCropActivity extends BaseActivity implements Handler.Callb
      * This is called on {@link #mLoaderThread}
      */
     @Override
-    public boolean handleMessage(Message msg) {
+    public boolean handleMessage(Message msg) {//这里用来接收刚刚发送的message（Message1）
         if (msg.what == MSG_LOAD_IMAGE) {
             final LoadRequest req = (LoadRequest) msg.obj;
             try {
@@ -309,7 +309,7 @@ public class WallpaperCropActivity extends BaseActivity implements Handler.Callb
 
         // Remove any pending requests
         mLoaderHandler.removeMessages(MSG_LOAD_IMAGE);
-        Message.obtain(mLoaderHandler, MSG_LOAD_IMAGE, req).sendToTarget();
+        Message.obtain(mLoaderHandler, MSG_LOAD_IMAGE, req).sendToTarget();//这里发送一个Message（点击tile的时候加载预览图的）（Message1）
 
         // We don't want to show the spinner every time we load an image, because that would be
         // annoying; instead, only start showing the spinner if loading the image has taken

@@ -134,7 +134,7 @@ public class WallpaperPickerActivity extends WallpaperCropActivity {
      * 一个类，方便同一匹配
      */
     public static abstract class WallpaperTileInfo {
-        protected View mView;//这个view貌似是添加在linearLayout的子view，和下边的mThub的关系暂不明确
+        protected View mView;//这个view貌似是添加在linearLayout的子view
         public Drawable mThumb;//这个就是显示在预览壁纸下边的缩略图
 
         public void setView(View v) {

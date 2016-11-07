@@ -47,7 +47,7 @@ public class ThirdPartyWallpaperPickerListAdapter extends BaseAdapter implements
             new ArrayList<ThirdPartyWallpaperTile>();
 
     /**
-     * 三方的设置壁纸软件接口
+     * 三方的设置壁纸软件接口比如360桌面壁纸
      */
     public static class ThirdPartyWallpaperTile extends WallpaperPickerActivity.WallpaperTileInfo {
         @Thunk ResolveInfo mResolveInfo;
