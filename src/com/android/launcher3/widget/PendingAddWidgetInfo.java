@@ -16,6 +16,7 @@
 package com.android.launcher3.widget;
 
 import android.appwidget.AppWidgetHostView;
+import android.appwidget.AppWidgetProviderInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -54,6 +55,8 @@ public class PendingAddWidgetInfo extends PendingAddItemInfo {
         minSpanX = i.minSpanX;
         minSpanY = i.minSpanY;
     }
+
+    
 
     public boolean isCustomWidget() {
         return itemType == LauncherSettings.Favorites.ITEM_TYPE_CUSTOM_APPWIDGET;

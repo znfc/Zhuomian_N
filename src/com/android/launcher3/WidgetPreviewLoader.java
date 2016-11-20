@@ -1,5 +1,6 @@
 package com.android.launcher3;
 
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
@@ -35,6 +36,8 @@ import com.android.launcher3.util.SQLiteCacheHelper;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.widget.WidgetCell;
 
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +64,8 @@ public class WidgetPreviewLoader {
      */
     @Thunk final Set<Bitmap> mUnusedBitmaps =
             Collections.newSetFromMap(new WeakHashMap<Bitmap, Boolean>());
+
+    private final HashMap<String, WeakReference<Bitmap>> mLoadedPreviews = new HashMap<>();
 
     private final Context mContext;
     private final IconCache mIconCache;
@@ -100,6 +105,25 @@ public class WidgetPreviewLoader {
         return new PreviewLoadRequest(task);
     }
 
+
+    public void recycleBitmap(Object o, Bitmap bitmapToRecycle) {
+        String name = getObjectName(o);
+        synchronized (mLoadedPreviews) {
+            if (mLoadedPreviews.containsKey(name)) {
+                Bitmap b = mLoadedPreviews.get(name).get();
+                if (b == bitmapToRecycle) {
+                    mLoadedPreviews.remove(name);
+                    if (bitmapToRecycle.isMutable()) {
+                        synchronized (mUnusedBitmaps) {
+//                            mUnusedBitmaps.add(new SoftReference<Bitmap>(b));
+                        }
+                    }
+                } else {
+                    throw new RuntimeException("Bitmap passed in doesn't match up");
+                }
+            }
+        }
+    }
     /**
      * The DB holds the generated previews for various components. Previews can also have different
      * sizes (landscape vs portrait).
@@ -133,6 +157,30 @@ public class WidgetPreviewLoader {
                     "PRIMARY KEY (" + COLUMN_COMPONENT + ", " + COLUMN_USER + ", " + COLUMN_SIZE + ") " +
                     ");");
         }
+    }
+
+    private static final String WIDGET_PREFIX = "Widget:";
+    private static final String SHORTCUT_PREFIX = "Shortcut:";
+
+    private static String getObjectName(Object o) {
+        // should cache the string builder
+        StringBuilder sb = new StringBuilder();
+        String output;
+        if (o instanceof AppWidgetProviderInfo) {
+            sb.append(WIDGET_PREFIX);
+            sb.append(((AppWidgetProviderInfo) o).toString());
+            output = sb.toString();
+            sb.setLength(0);
+        } else {
+            sb.append(SHORTCUT_PREFIX);
+
+            ResolveInfo info = (ResolveInfo) o;
+            sb.append(new ComponentName(info.activityInfo.packageName,
+                    info.activityInfo.name).flattenToString());
+            output = sb.toString();
+            sb.setLength(0);
+        }
+        return output;
     }
 
     private WidgetCacheKey getObjectKey(Object o, String size) {
@@ -607,10 +655,10 @@ public class WidgetPreviewLoader {
                 // which would gets re-written next time.
                 mVersions = getPackageVersion(mKey.componentName.getPackageName());
 
-                Launcher launcher = (Launcher) mCaller.getContext();
+//                Launcher launcher = (Launcher) mCaller.getContext();
 
                 // it's not in the db... we need to generate it
-                preview = generatePreview(launcher, mInfo, unusedBitmap, mPreviewWidth, mPreviewHeight);
+//                preview = generatePreview(launcher, mInfo, unusedBitmap, mPreviewWidth, mPreviewHeight);
             }
             return preview;
         }

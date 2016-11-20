@@ -76,6 +76,7 @@ import com.mediatek.launcher3.LauncherLog;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -3767,6 +3768,25 @@ public class LauncherModel extends BroadcastReceiver
         return folderInfo;
     }
 
+    public static final Comparator<AppInfo> getAppNameComparator() {
+        final Collator collator = Collator.getInstance();
+        return new Comparator<AppInfo>() {
+            public final int compare(AppInfo a, AppInfo b) {
+                if (a.user.equals(b.user)) {
+                    int result = collator.compare(a.title.toString().trim(),
+                            b.title.toString().trim());
+                    if (result == 0) {
+                        result = a.componentName.compareTo(b.componentName);
+                    }
+                    return result;
+                } else {
+                    // TODO Need to figure out rules for sorting
+                    // profiles, this puts work second.
+                    return a.user.toString().compareTo(b.user.toString());
+                }
+            }
+        };
+    }
 
     static boolean isValidProvider(AppWidgetProviderInfo provider) {
         return (provider != null) && (provider.provider != null)

@@ -4362,6 +4362,16 @@ public class Workspace extends PagedView
     }
 
     @Override
+    public void syncPages() {
+
+    }
+
+    @Override
+    public void syncPageItems(int page, boolean immediate) {
+
+    }
+
+    @Override
     public boolean onEnterScrollArea(int x, int y, int direction) {
         // Ignore the scroll area if we are dragging over the hot seat
         boolean isPortrait = !mLauncher.getDeviceProfile().isLandscape;

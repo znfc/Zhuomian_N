@@ -94,7 +94,8 @@ public class DeviceProfile {
     private int hotseatBarHeightPx; // One of the above.
 
     // All apps
-    public int allAppsNumCols;
+    public int allAppsNumRows = 5;
+    public int allAppsNumCols = 4;
     public int allAppsNumPredictiveCols;
     public int allAppsButtonVisualSize;
     public final int allAppsIconSizePx;

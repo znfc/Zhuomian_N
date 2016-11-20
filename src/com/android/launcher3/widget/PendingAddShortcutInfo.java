@@ -28,7 +28,7 @@ import com.android.launcher3.PendingAddItemInfo;
  */
 public class PendingAddShortcutInfo extends PendingAddItemInfo {
 
-    ActivityInfo activityInfo;
+    public ActivityInfo activityInfo;
 
     public PendingAddShortcutInfo(ActivityInfo activityInfo) {
         this.activityInfo = activityInfo;

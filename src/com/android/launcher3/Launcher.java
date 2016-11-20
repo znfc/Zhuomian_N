@@ -145,7 +145,7 @@ import java.util.List;
 public class Launcher extends Activity
         implements View.OnClickListener, OnLongClickListener, LauncherModel.Callbacks,
                    View.OnTouchListener, PageSwitchListener, LauncherProviderChangeListener,
-                   MTKUnreadLoader.UnreadCallbacks {
+                   MTKUnreadLoader.UnreadCallbacks {//add unread feature by zhaopenglin DWEQLSY-351
     static final String TAG = "Launcher";
     static final boolean LOGD = false;
 
@@ -269,6 +269,9 @@ public class Launcher extends Activity
     private View mWidgetsButton;
 
     private SearchDropTargetBar mSearchDropTargetBar;
+
+    private AppsCustomizeTabHost mAppsCustomizeTabHost;
+    private AppsCustomizePagedView mAppsCustomizeContent;
 
     // Main container view for the all apps screen.
     @Thunk AllAppsContainerView mAppsView;
@@ -478,8 +481,8 @@ public class Launcher extends Activity
              * 注册未读短信数据库监听者
              * 将这个发送者改为单例模式这样注册就会只注册一个，避免重复注册
              */
-            UnreadContentObserver.getUnreadContentObserver(this).registerObserver();
-            UnreadContentObserver.getUnreadContentObserver(this).getUnreadMms();
+//            UnreadContentObserver.getUnreadContentObserver(this).registerObserver();
+//            UnreadContentObserver.getUnreadContentObserver(this).getUnreadMms();
         }
         /**@}**/
         mIconCache = app.getIconCache();
@@ -1513,6 +1516,7 @@ public class Launcher extends Activity
             public void onClick(View view) {
                 if (!mWorkspace.isSwitchingState()) {
                     onClickWallpaperPicker(view);
+//                    hideWorkspaceSearchAndHotseat();
                 }
             }
         });
@@ -1551,6 +1555,12 @@ public class Launcher extends Activity
         }
 
         mOverviewPanel.setAlpha(0f);
+
+        // Setup AppsCustomize
+        mAppsCustomizeTabHost = (AppsCustomizeTabHost) findViewById(R.id.apps_customize_pane);
+        mAppsCustomizeContent =
+                (AppsCustomizePagedView) mAppsCustomizeTabHost.findViewById(R.id.apps_customize_pane_content);
+        mAppsCustomizeContent.setup(this, mDragController);
     }
 
     /**
@@ -1656,6 +1666,23 @@ public class Launcher extends Activity
             mWorkspace.addInScreen(view, container, screenId, cellXY[0], cellXY[1], 1, 1,
                     isWorkspaceLocked());
         }
+    }
+
+    static int[] getSpanForWidget(Context context, ComponentName component, int minWidth, int minHeight) {
+        Rect padding = AppWidgetHostView.getDefaultPaddingForWidget(context, component, null);
+        // We want to account for the extra amount of padding that we are adding to the widget
+        // to ensure that it gets the full amount of space that it has requested
+        int requiredWidth = minWidth + padding.left + padding.right;
+        int requiredHeight = minHeight + padding.top + padding.bottom;
+        return null;//CellLayout.rectToCell(requiredWidth, requiredHeight, null);
+    }
+
+    static int[] getSpanForWidget(Context context, AppWidgetProviderInfo info) {
+        return getSpanForWidget(context, info.provider, info.minWidth, info.minHeight);
+    }
+
+    static int[] getMinSpanForWidget(Context context, AppWidgetProviderInfo info) {
+        return getSpanForWidget(context, info.provider, info.minResizeWidth, info.minResizeHeight);
     }
 
     /**
@@ -4627,6 +4654,12 @@ public class Launcher extends Activity
 
         if (mAppsView != null) {
             mAppsView.setApps(apps);
+            if (mAppsCustomizeContent != null) {
+                Log.i("zhaoall","添加数据apps:"+apps.size());
+                mAppsCustomizeContent.setContentType(AppsCustomizePagedView.ContentType.Applications);
+                mAppsCustomizeContent.setApps(apps);
+//                mAppsCustomizeContent.onPackagesUpdated(LauncherModel.getSortedWidgetsAndShortcuts(this));
+            }
         }
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.bindAllApplications(apps);
@@ -5051,6 +5084,7 @@ public class Launcher extends Activity
         if (mPageIndicators != null) mPageIndicators.setAlpha(0f);
         if (mSearchDropTargetBar != null) mSearchDropTargetBar.animateToState(
                 SearchDropTargetBar.State.INVISIBLE, 0);
+        mAppsCustomizeTabHost.setVisibility(View.VISIBLE);
     }
 
     // TODO: These method should be a part of LauncherSearchCallback

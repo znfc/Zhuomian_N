@@ -126,6 +126,23 @@
     <dimen name="shortcut_preview_padding_right">0dp</dimen>
     <dimen name="shortcut_preview_padding_top">0dp</dimen>
 
+    <!-- The AppsCustomize page indicator -->
+    <dimen name="apps_customize_page_indicator_height">12dp</dimen>
+    <dimen name="apps_customize_page_indicator_margin">4dp</dimen>
+    <dimen name="apps_customize_page_indicator_offset">16dp</dimen>
+
+
+    <!-- When dragging items on the workspace, the number of dps by which the position of
+     the drag view should be offset from the position of the original view. -->
+    <dimen name="dragViewOffsetX">0dp</dimen>
+    <dimen name="dragViewOffsetY">0dp</dimen>
+    <!-- Padding applied to AppWidget previews -->
+    <dimen name="app_widget_preview_padding_left">16dp</dimen>
+    <dimen name="app_widget_preview_padding_right">16dp</dimen>
+    <dimen name="app_widget_preview_padding_top">32dp</dimen>
+    <dimen name="app_widget_preview_label_vertical_padding">8dp</dimen>
+    <dimen name="app_widget_preview_label_horizontal_padding">8dp</dimen>
+
 <!-- Dragging -->
     <!-- Drag padding to add to the bottom of drop targets -->
     <dimen name="drop_target_drag_padding">14dp</dimen>
@@ -177,5 +194,7 @@
     <dimen name="app_list_unread_margin_right">10dp</dimen>
     <dimen name="unread_text_margin">8dp</dimen>
     <dimen name="unread_text_number_size">14sp</dimen>
+
+<!-- Add for unread events feature. -->
     <dimen name="unread_text_plus_size">10sp</dimen>
 </resources>

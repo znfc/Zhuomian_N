@@ -18,6 +18,7 @@ package com.android.launcher3;
 
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -129,7 +130,9 @@ public class LauncherAppState {
             }
         }, filter1);
     }
-
+    public static boolean isDisableAllApps(){
+        return true;
+    }
     /**
      * Call from Application.onTerminate(), which is not guaranteed to ever be called.
      */
@@ -169,6 +172,9 @@ public class LauncherAppState {
         return mModel;
     }
 
+    boolean shouldShowAppOrWidgetProvider(ComponentName componentName) {
+        return mAppFilter == null || mAppFilter.shouldShowApp(componentName);
+    }
     static void setLauncherProvider(LauncherProvider provider) {
         sLauncherProvider = new WeakReference<LauncherProvider>(provider);
     }
