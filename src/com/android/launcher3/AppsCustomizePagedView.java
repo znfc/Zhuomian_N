@@ -187,7 +187,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     // Dimens
     private int mContentWidth, mContentHeight;
     private int mWidgetCountX, mWidgetCountY;
-    //TODO allappview 这个是干什么的？
+    //TODO allappview 这个变量mWidgetSpacingLayout是干什么的？
     // 这个难道是allapp里的子页？
     private PagedViewCellLayout mWidgetSpacingLayout;
     private int mNumAppsPages;
@@ -348,6 +348,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         mNumWidgetPages = (int) Math.ceil(mWidgets.size() /
                 (float) (mWidgetCountX * mWidgetCountY));
         mNumAppsPages = (int) Math.ceil((float) mApps.size() / (mCellCountX * mCellCountY));
+        Log.i(TAGzhao,"updatePageCounts();mNumAppsPages:"+mNumAppsPages);
     }
 
     protected void onDataReady(int width, int height) {
@@ -958,6 +959,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         }
     }
 
+    //TODO allappview syncAppsPageItems 这个方法是用来显示item的？
     public void syncAppsPageItems(int page, boolean immediate) {
         // ensure that we have the right number of items on the pages
         final boolean isRtl = false;
@@ -1421,11 +1423,15 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
      */
     private void invalidateOnDataChange() {
         Log.i(TAGzhao,"invalidateOnDataChange:isDataReady():"+isDataReady());
-        if (!isDataReady()) {
+        if (isDataReady()) {
             // The next layout pass will trigger data-ready if both widgets and apps are set, so
             // request a layout to trigger the page data when ready.
             requestLayout();
         } else {
+            syncPages();
+            for (int i = 0 ; i< mNumAppsPages;i++){
+                syncAppsPageItems(i,false);
+            }
             cancelAllTasks();
             invalidatePageData();
         }
@@ -1433,6 +1439,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     public void setApps(ArrayList<AppInfo> list) {
 //        if (!LauncherAppState.isDisableAllApps()) {
+        onDataReady(0,0);
             mApps = list;
 //            Collections.sort(mApps, LauncherModel.getAppNameComparator());
             updatePageCountsAndInvalidateData();
@@ -1577,6 +1584,6 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
             throw new RuntimeException("Invalid ContentType");
         }
 
-        return String.format(getContext().getString(stringId), page + 1, count);
+        return "page";//String.format(getContext().getString(stringId), page + 1, count);
     }
 }

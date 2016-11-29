@@ -125,7 +125,7 @@
     <dimen name="shortcut_preview_padding_left">0dp</dimen>
     <dimen name="shortcut_preview_padding_right">0dp</dimen>
     <dimen name="shortcut_preview_padding_top">0dp</dimen>
-
+    <dimen name="apps_customize_horizontal_padding">0dp</dimen>
     <!-- The AppsCustomize page indicator -->
     <dimen name="apps_customize_page_indicator_height">12dp</dimen>
     <dimen name="apps_customize_page_indicator_margin">4dp</dimen>

@@ -94,7 +94,7 @@ public class DeviceProfile {
     private int hotseatBarHeightPx; // One of the above.
 
     // All apps
-    public int allAppsNumRows = 5;
+    public int allAppsNumRows = 6;
     public int allAppsNumCols = 4;
     public int allAppsNumPredictiveCols;
     public int allAppsButtonVisualSize;
@@ -447,6 +447,7 @@ public class DeviceProfile {
 
     public void layout(Launcher launcher) {
         FrameLayout.LayoutParams lp;
+        Resources res = launcher.getResources();
         boolean hasVerticalBarLayout = isVerticalBarLayout();
         final boolean isLayoutRtl = Utilities.isRtl(launcher.getResources());
 
@@ -534,6 +535,64 @@ public class DeviceProfile {
                 lp.height = LayoutParams.WRAP_CONTENT;
                 lp.bottomMargin = hotseatBarHeightPx;
                 pageIndicator.setLayoutParams(lp);
+            }
+        }
+
+        // Layout AllApps
+        AppsCustomizeTabHost host = (AppsCustomizeTabHost)
+                launcher.findViewById(R.id.apps_customize_pane);
+        if (host != null) {
+            // Center the all apps page indicator
+            int pageIndicatorHeight = (int) (pageIndicatorHeightPx);// * Math.min(1f,
+//                    (allAppsIconSizePx / DynamicGrid.DEFAULT_ICON_SIZE_PX)));
+            pageIndicator = host.findViewById(R.id.apps_customize_page_indicator);
+            if (pageIndicator != null) {
+                LinearLayout.LayoutParams lllp = (LinearLayout.LayoutParams) pageIndicator.getLayoutParams();
+                lllp.width = LayoutParams.WRAP_CONTENT;
+                lllp.height = pageIndicatorHeight;
+                pageIndicator.setLayoutParams(lllp);
+            }
+
+            AppsCustomizePagedView pagedView = (AppsCustomizePagedView)
+                    host.findViewById(R.id.apps_customize_pane_content);
+
+            FrameLayout fakePageContainer = (FrameLayout)
+                    host.findViewById(R.id.fake_page_container);
+            FrameLayout fakePage = (FrameLayout) host.findViewById(R.id.fake_page);
+
+            padding = new Rect();
+            if (pagedView != null) {
+                // Constrain the dimensions of all apps so that it does not span the full width
+                int paddingLR = (availableWidthPx - (iconSizePx * allAppsNumCols)) /
+                        (2 * (allAppsNumCols + 1));
+                int paddingTB = (availableHeightPx - (iconSizePx * allAppsNumRows)) /
+                        (2 * (allAppsNumRows + 1));
+                paddingLR = Math.min(paddingLR, (int)((paddingLR + paddingTB) * 0.75f));
+                paddingTB = Math.min(paddingTB, (int)((paddingLR + paddingTB) * 0.75f));
+                int maxAllAppsWidth = (allAppsNumCols * (iconSizePx + 2 * paddingLR));
+                int gridPaddingLR = (availableWidthPx - maxAllAppsWidth) / 2;
+                // Only adjust the side paddings on landscape phones, or tablets
+                if ((false || isLandscape) && gridPaddingLR > (iconSizePx / 4)) {
+                    padding.left = padding.right = gridPaddingLR;
+                }
+
+                // The icons are centered, so we can't just offset by the page indicator height
+                // because the empty space will actually be pageIndicatorHeight + paddingTB
+                padding.bottom = Math.max(0, pageIndicatorHeight - paddingTB);
+
+                pagedView.setWidgetsPageIndicatorPadding(pageIndicatorHeight);
+                fakePage.setBackground(res.getDrawable(R.drawable.quantum_panel));
+
+                // Horizontal padding for the whole paged view
+                int pagedFixedViewPadding =
+                        res.getDimensionPixelSize(R.dimen.apps_customize_horizontal_padding);
+
+                padding.left += pagedFixedViewPadding;
+                padding.right += pagedFixedViewPadding;
+
+                pagedView.setPadding(padding.left, padding.top, padding.right, padding.bottom);
+                fakePageContainer.setPadding(padding.left, padding.top, padding.right, padding.bottom);
+
             }
         }
 
