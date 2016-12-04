@@ -3051,7 +3051,8 @@ public class Launcher extends Activity
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onClickSettingsButton(v);
         } else {
-            startActivity(new Intent(this, SettingsActivity.class));
+            showLAllapp();
+//            startActivity(new Intent(this, SettingsActivity.class));
         }
     }
 
@@ -3659,7 +3660,18 @@ public class Launcher extends Activity
                     .sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
         LauncherHelper.endSection();
+        hideLAllapp();
         return changed;
+    }
+
+    private void hideLAllapp() {
+        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 1f, 0f).setDuration(300).start();
+        mAppsCustomizeTabHost.setVisibility(View.INVISIBLE);
+    }
+
+    private void showLAllapp() {
+        mAppsCustomizeTabHost.setVisibility(View.VISIBLE);
+        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 0f, 1f).setDuration(300).start();
     }
 
     /**
@@ -4656,7 +4668,6 @@ public class Launcher extends Activity
             mAppsView.setApps(apps);
             if (mAppsCustomizeContent != null) {
                 Log.i("zhaoall","添加数据apps:"+apps.size());
-                mAppsCustomizeContent.setContentType(AppsCustomizePagedView.ContentType.Applications);
                 mAppsCustomizeContent.setApps(apps);
 //                mAppsCustomizeContent.onPackagesUpdated(LauncherModel.getSortedWidgetsAndShortcuts(this));
             }
@@ -4843,6 +4854,7 @@ public class Launcher extends Activity
 
         if (mWidgetsView != null && model != null) {
             mWidgetsView.addWidgets(model);
+            mAppsCustomizeContent.onPackagesUpdated(model);
             mWidgetsModel = null;
         }
     }

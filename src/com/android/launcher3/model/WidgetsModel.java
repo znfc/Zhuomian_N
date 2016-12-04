@@ -51,7 +51,7 @@ public class WidgetsModel {
     private final AppFilter mAppFilter;
     private final AlphabeticIndexCompat mIndexer;
 
-    private ArrayList<Object> mRawList;
+    private ArrayList<Object> mRawList;//这个就是widget列表
 
     public WidgetsModel(Context context,  IconCache iconCache, AppFilter appFilter) {
         mAppWidgetMgr = AppWidgetManagerCompat.getInstance(context);

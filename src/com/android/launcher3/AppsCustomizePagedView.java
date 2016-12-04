@@ -51,6 +51,7 @@ import android.widget.Toast;
 
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
+import com.android.launcher3.model.WidgetsModel;
 import com.android.launcher3.widget.PendingAddShortcutInfo;
 import com.android.launcher3.widget.PendingAddWidgetInfo;
 
@@ -393,8 +394,11 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
                 });
             }
         }
+//        throw new RuntimeException("onlayout方法调用了");
     }
-
+    public void onPackagesUpdated(WidgetsModel model) {
+        onPackagesUpdated(model.getRawList());
+    }
     public void onPackagesUpdated(ArrayList<Object> widgetsAndShortcuts) {
         LauncherAppState app = LauncherAppState.getInstance();
         DeviceProfile grid = app.getInvariantDeviceProfile().portraitProfile;
@@ -411,6 +415,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
                     // Ensure that all widgets we show can be added on a workspace of this size
                     int[] spanXY = Launcher.getSpanForWidget(mLauncher, widget);
                     int[] minSpanXY = Launcher.getMinSpanForWidget(mLauncher, widget);
+                    if (minSpanXY == null) continue;
                     int minSpanX = Math.min(spanXY[0], minSpanXY[0]);
                     int minSpanY = Math.min(spanXY[1], minSpanXY[1]);
                     if (minSpanX <= (int) 5 &&
@@ -1264,7 +1269,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
             int count = items.size();
             for (int i = 0; i < count; ++i) {
                 PagedViewWidget widget = (PagedViewWidget) layout.getChildAt(i);
-                if (widget != null) {
+                if (widget != null && data.generatedImages.size()>0) {
                     Bitmap preview = data.generatedImages.get(i);
                     widget.applyPreview(new FastBitmapDrawable(preview), i);
                 }
@@ -1423,7 +1428,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
      */
     private void invalidateOnDataChange() {
         Log.i(TAGzhao,"invalidateOnDataChange:isDataReady():"+isDataReady());
-        if (isDataReady()) {
+        if (!isDataReady()) {
             // The next layout pass will trigger data-ready if both widgets and apps are set, so
             // request a layout to trigger the page data when ready.
             requestLayout();
@@ -1439,7 +1444,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     public void setApps(ArrayList<AppInfo> list) {
 //        if (!LauncherAppState.isDisableAllApps()) {
-        onDataReady(0,0);
+//        onDataReady(0,0);
             mApps = list;
 //            Collections.sort(mApps, LauncherModel.getAppNameComparator());
             updatePageCountsAndInvalidateData();
