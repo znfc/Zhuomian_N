@@ -3754,8 +3754,11 @@ public class Workspace extends PagedView
      * NOTE: This can also be called when we are outside of a drag event, when we want
      * to add an item to one of the workspace screens.
      */
+    boolean bb = true;
     private void onDropExternal(final int[] touchXY, final Object dragInfo,
             final CellLayout cellLayout, boolean insertAtFirst, DragObject d) {
+        Log.i("zhaoall","onDropExternal");
+        if(bb) throw new RuntimeException("onDropExternal");
         final Runnable exitSpringLoadedRunnable = new Runnable() {
             @Override
             public void run() {

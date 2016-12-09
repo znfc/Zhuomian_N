@@ -3453,6 +3453,11 @@ public class Launcher extends Activity
         getDragLayer().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
+    /**
+     * 这个方法在allapp界面长按就不会被执行
+     * @param v
+     * @return
+     */
     public boolean onLongClick(View v) {
         if (!isDraggingEnabled()) return false;
         if (isWorkspaceLocked()) return false;
@@ -3621,6 +3626,7 @@ public class Launcher extends Activity
     }
 
     /**
+     * 从allapp界面拖拽icon的时候没有松手的时候不会调用这个方法s
      * @return whether or not the Launcher state changed.
      */
     boolean showWorkspace(int snapToPage, boolean animated, Runnable onCompleteRunnable) {
@@ -3646,7 +3652,8 @@ public class Launcher extends Activity
                 mAllAppsButton.requestFocus();
             }
         }
-
+Log.i("zhaoall","mstate:"+mState);
+        if(mState == State.APPS_SPRING_LOADED) throw new RuntimeException("显示桌面3333333:");
         // Change the state *after* we've called all the transition code
         mState = State.WORKSPACE;
 
@@ -3802,6 +3809,8 @@ public class Launcher extends Activity
                 WorkspaceStateTransitionAnimation.SCROLL_TO_CURRENT_PAGE, true /* animated */,
                 null /* onCompleteRunnable */);
         mState = isAppsViewVisible() ? State.APPS_SPRING_LOADED : State.WIDGETS_SPRING_LOADED;
+        Log.i("zhaoall","进入spring模式");
+//        throw new RuntimeException("进入spring模式报错");
     }
 
     public void exitSpringLoadedDragModeDelayed(final boolean successfulDrop, int delay,
@@ -3811,7 +3820,7 @@ public class Launcher extends Activity
                 + successfulDrop + ", delay = " + delay + ", mState = " + mState);
         }
         if (mState != State.APPS_SPRING_LOADED && mState != State.WIDGETS_SPRING_LOADED) return;
-
+        if (mState == State.APPS_SPRING_LOADED) throw new RuntimeException("退出spring");
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
