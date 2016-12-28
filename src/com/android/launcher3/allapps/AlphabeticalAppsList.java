@@ -24,6 +24,7 @@ import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.MTKUnreadLoader;
 import com.android.launcher3.compat.AlphabeticIndexCompat;
 import com.android.launcher3.compat.UserHandleCompat;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.model.AppNameComparator;
 import com.android.launcher3.util.ComponentKey;
 import com.mediatek.launcher3.LauncherLog;
@@ -42,6 +43,7 @@ import java.util.TreeMap;
 public class AlphabeticalAppsList {
 
     public static final String TAG = "AlphabeticalAppsList";
+    public static final String CLASS_TAG = "AlphabeticalAppsList";
     private static final boolean DEBUG = false;
     private static final boolean DEBUG_PREDICTIONS = false;
 
@@ -307,7 +309,8 @@ public class AlphabeticalAppsList {
     /**
      * Sets the current set of apps.
      */
-    public void setApps(List<AppInfo> apps) {
+    public void setApps(List<AppInfo> apps) {//调用的这个方法
+        Log.i(MyLogConfig.CTS,CLASS_TAG+",setApps:"+apps.size());
         mComponentToAppMap.clear();
         addApps(apps);
     }
@@ -316,6 +319,7 @@ public class AlphabeticalAppsList {
      * Adds new apps to the list.
      */
     public void addApps(List<AppInfo> apps) {
+        Log.i(MyLogConfig.CTS,CLASS_TAG+",updateApps:"+apps.size());
         updateApps(apps);
     }
 
@@ -323,6 +327,7 @@ public class AlphabeticalAppsList {
      * Updates existing apps in the list
      */
     public void updateApps(List<AppInfo> apps) {
+        Log.i(MyLogConfig.CTS,TAG+",updateApps:"+apps.size());
         if (apps == null) return;
         final int size = apps.size();
         AppInfo appInfo = null;
@@ -335,6 +340,7 @@ public class AlphabeticalAppsList {
             }
         }
         for (AppInfo app : apps) {
+//            Log.i(MyLogConfig.CTS,TAG+",updateApps:"+app);
             mComponentToAppMap.put(app.toComponentKey(), app);
         }
         onAppsUpdated();

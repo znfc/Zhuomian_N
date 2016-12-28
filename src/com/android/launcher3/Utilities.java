@@ -674,6 +674,7 @@ public final class Utilities {
     public static byte[] flattenBitmap(Bitmap bitmap) {
         // Try go guesstimate how much space the icon will take when serialized
         // to avoid unnecessary allocations/copies during the write.
+        if(bitmap == null) return  null;
         int size = bitmap.getWidth() * bitmap.getHeight() * 4;
         ByteArrayOutputStream out = new ByteArrayOutputStream(size);
         try {

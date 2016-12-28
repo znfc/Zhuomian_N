@@ -198,6 +198,7 @@ public class LauncherStateTransitionAnimation {
             final Workspace.State fromWorkspaceState, final Workspace.State toWorkspaceState,
             final View buttonView, final BaseContainerView toView,
             final boolean animated, final PrivateTransitionCallbacks pCb) {
+        Log.i("zhao11state","startAnimationToOverlay:");
         final AnimatorSet animation = LauncherAnimUtils.createAnimatorSet();
         final Resources res = mLauncher.getResources();
         final boolean material = Utilities.ATLEAST_LOLLIPOP;
@@ -480,12 +481,15 @@ public class LauncherStateTransitionAnimation {
     /**
      * Creates and starts a new animation to the workspace.
      */
+    boolean b =true;
     private AnimatorSet startAnimationToWorkspaceFromOverlay(
             final Workspace.State fromWorkspaceState, final Workspace.State toWorkspaceState,
             final int toWorkspacePage,
             final View buttonView, final BaseContainerView fromView,
             final boolean animated, final Runnable onCompleteRunnable,
             final PrivateTransitionCallbacks pCb) {
+        Log.i("zhao11state","startAnimationToWorkspaceFromOverlay:");
+//        if(b) throw new RuntimeException("11111111111111111111");
         final AnimatorSet animation = LauncherAnimUtils.createAnimatorSet();
         final Resources res = mLauncher.getResources();
         final boolean material = Utilities.ATLEAST_LOLLIPOP;

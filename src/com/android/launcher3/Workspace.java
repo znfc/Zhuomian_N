@@ -194,11 +194,11 @@ public class Workspace extends PagedView
     // in all apps or customize mode)
 
     enum State {
-        NORMAL          (SearchDropTargetBar.State.SEARCH_BAR, false),
-        NORMAL_HIDDEN   (SearchDropTargetBar.State.INVISIBLE_TRANSLATED, false),
-        SPRING_LOADED   (SearchDropTargetBar.State.DROP_TARGET, false),
-        OVERVIEW        (SearchDropTargetBar.State.INVISIBLE, true),
-        OVERVIEW_HIDDEN (SearchDropTargetBar.State.INVISIBLE, true);
+        NORMAL          (SearchDropTargetBar.State.SEARCH_BAR, false),//这个是正常状态下
+        NORMAL_HIDDEN   (SearchDropTargetBar.State.INVISIBLE_TRANSLATED, false),//这个是进入allapp界面正常隐藏
+        SPRING_LOADED   (SearchDropTargetBar.State.DROP_TARGET, false),//从app或者widget中拖拽icon是那个缩小的workspace界面
+        OVERVIEW        (SearchDropTargetBar.State.INVISIBLE, true),//这个是长按桌面的overview界面
+        OVERVIEW_HIDDEN (SearchDropTargetBar.State.INVISIBLE, true);//这个是长按桌面后overview界面后进入widget界面
 
         public final SearchDropTargetBar.State searchDropTargetBarState;
         public final boolean shouldUpdateWidget;
@@ -2221,6 +2221,7 @@ public class Workspace extends PagedView
                 && toState.shouldUpdateWidget;
         // Update the current state
         mState = toState;
+        Log.i("zhao11state","setStateWithAnimation:"+mState);
         updateAccessibilityFlags();
 
         if (shouldNotifyWidgetChange) {
@@ -3758,7 +3759,7 @@ public class Workspace extends PagedView
     private void onDropExternal(final int[] touchXY, final Object dragInfo,
             final CellLayout cellLayout, boolean insertAtFirst, DragObject d) {
         Log.i("zhaoall","onDropExternal");
-        if(bb) throw new RuntimeException("onDropExternal");
+//        if(bb) throw new RuntimeException("onDropExternal");
         final Runnable exitSpringLoadedRunnable = new Runnable() {
             @Override
             public void run() {

@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 
 import com.android.launcher3.Utilities;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.PackageManagerHelper;
 import com.android.launcher3.util.Thunk;
 
@@ -56,6 +57,7 @@ public class LauncherAppsCompatV16 extends LauncherAppsCompat {
         mPackageMonitor = new PackageMonitor();
    }
 
+
     public List<LauncherActivityInfoCompat> getActivityList(String packageName,
             UserHandleCompat user) {
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
@@ -67,6 +69,7 @@ public class LauncherAppsCompatV16 extends LauncherAppsCompat {
         for (ResolveInfo info : infos) {
             list.add(new LauncherActivityInfoCompatV16(mContext, info));
         }
+
         return list;
     }
 

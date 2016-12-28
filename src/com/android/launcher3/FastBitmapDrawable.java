@@ -204,6 +204,7 @@ public class FastBitmapDrawable extends Drawable {
 
             mPropertyAnimator = cancelAnimator(mPropertyAnimator);
 
+            //TODO CTS_ICON
             setDesaturation(newState.desaturation);
             setBrightness(newState.brightness);
             return true;

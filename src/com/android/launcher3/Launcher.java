@@ -112,6 +112,7 @@ import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.config.ProviderConfig;
 import com.android.launcher3.model.WidgetsModel;
 import com.android.launcher3.util.ComponentKey;
@@ -3653,7 +3654,7 @@ public class Launcher extends Activity
             }
         }
 Log.i("zhaoall","mstate:"+mState);
-        if(mState == State.APPS_SPRING_LOADED) throw new RuntimeException("显示桌面3333333:");
+//        if(mState == State.APPS_SPRING_LOADED) throw new RuntimeException("显示桌面3333333:");
         // Change the state *after* we've called all the transition code
         mState = State.WORKSPACE;
 
@@ -3820,7 +3821,7 @@ Log.i("zhaoall","mstate:"+mState);
                 + successfulDrop + ", delay = " + delay + ", mState = " + mState);
         }
         if (mState != State.APPS_SPRING_LOADED && mState != State.WIDGETS_SPRING_LOADED) return;
-        if (mState == State.APPS_SPRING_LOADED) throw new RuntimeException("退出spring");
+//        if (mState == State.APPS_SPRING_LOADED) throw new RuntimeException("退出spring");
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -4674,9 +4675,10 @@ Log.i("zhaoall","mstate:"+mState);
         }
 
         if (mAppsView != null) {
+            Log.i(MyLogConfig.CTS,TAG+",bindAllApplications:"+apps.size());
             mAppsView.setApps(apps);
             if (mAppsCustomizeContent != null) {
-                Log.i("zhaoall","添加数据apps:"+apps.size());
+                Log.i(MyLogConfig.ALLAPP,"添加数据apps:"+apps.size());
                 mAppsCustomizeContent.setApps(apps);
 //                mAppsCustomizeContent.onPackagesUpdated(LauncherModel.getSortedWidgetsAndShortcuts(this));
             }

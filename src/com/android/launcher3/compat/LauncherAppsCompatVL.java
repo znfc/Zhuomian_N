@@ -27,6 +27,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
 
+import com.android.launcher3.config.MyLogConfig;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,6 +60,7 @@ public class LauncherAppsCompatVL extends LauncherAppsCompat {
         for (LauncherActivityInfo info : list) {
             compatList.add(new LauncherActivityInfoCompatVL(info));
         }
+        if(MyLogConfig.thorwErr)  new RuntimeException("报错了:::::::");
         return compatList;
     }
 

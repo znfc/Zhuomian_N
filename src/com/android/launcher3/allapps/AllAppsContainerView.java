@@ -26,6 +26,7 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.method.TextKeyListener;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,6 +49,7 @@ import com.android.launcher3.LauncherTransitionable;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.Workspace;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.ComponentKey;
 
 import java.nio.charset.Charset;
@@ -132,6 +134,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
 
     private static final int MIN_ROWS_IN_MERGED_SECTION_PHONE = 3;
     private static final int MAX_NUM_MERGES_PHONE = 2;
+    private static final String CLASS_TAG = "AllappsContainerView";
 
     private final Launcher mLauncher;
     private final AlphabeticalAppsList mApps;
@@ -197,6 +200,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Sets the current set of apps.
      */
     public void setApps(List<AppInfo> apps) {
+        Log.i(MyLogConfig.CTS,CLASS_TAG+",setApps:"+apps.size());
         mApps.setApps(apps);
     }
 
@@ -204,6 +208,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Adds new apps to the list.
      */
     public void addApps(List<AppInfo> apps) {
+        Log.i(MyLogConfig.CTS,CLASS_TAG+",addApps:"+apps);
         mApps.addApps(apps);
     }
 
@@ -211,6 +216,7 @@ public class AllAppsContainerView extends BaseContainerView implements DragSourc
      * Updates existing apps in the list
      */
     public void updateApps(List<AppInfo> apps) {
+        Log.i(MyLogConfig.CTS,CLASS_TAG+",updateApps:"+apps.size());
         mApps.updateApps(apps);
     }
 

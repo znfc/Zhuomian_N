@@ -57,6 +57,7 @@ import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.model.GridSizeMigrationTask;
 import com.android.launcher3.model.WidgetsModel;
 import com.android.launcher3.util.ComponentKey;
@@ -1317,8 +1318,8 @@ public class LauncherModel extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent) {
         if (DEBUG_RECEIVER) Log.d(TAG, "onReceive intent=" + intent);
-
         final String action = intent.getAction();
+        Log.i(MyLogConfig.CTS,TAG+",onReceive:"+action);
         if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             // If we have changed locale we need to clear out the labels in all apps/workspace.
             forceReload();
@@ -1330,11 +1331,12 @@ public class LauncherModel extends BroadcastReceiver
         } else if (LauncherAppsCompat.ACTION_MANAGED_PROFILE_ADDED.equals(action)
                 || LauncherAppsCompat.ACTION_MANAGED_PROFILE_REMOVED.equals(action)) {
             UserManagerCompat.getInstance(context).enableAndResetCache();
-            forceReload();
+            forceReload();//重新加载了
         } else if (LauncherAppsCompat.ACTION_MANAGED_PROFILE_AVAILABLE.equals(action) ||
-                LauncherAppsCompat.ACTION_MANAGED_PROFILE_UNAVAILABLE.equals(action)) {
+                LauncherAppsCompat.ACTION_MANAGED_PROFILE_UNAVAILABLE.equals(action)) {//这句话就是把icon置灰的关键
             UserHandleCompat user = UserHandleCompat.fromIntent(intent);
             if (user != null) {
+                Log.i(MyLogConfig.CTS,TAG+",onReceive:"+user);
                 enqueuePackageUpdated(new PackageUpdatedTask(
                         PackageUpdatedTask.OP_USER_AVAILABILITY_CHANGE,
                         new String[0], user));
@@ -2903,6 +2905,7 @@ public class LauncherModel extends BroadcastReceiver
                     final long t = SystemClock.uptimeMillis();
                     final Callbacks callbacks = tryGetCallbacks(oldCallbacks);
                     if (callbacks != null) {
+                        Log.i(MyLogConfig.CTS,TAG+",onlyBindAllApps:"+list.size());
                         callbacks.bindAllApplications(list);
                     }
                     if (DEBUG_LOADERS) {
@@ -2992,6 +2995,7 @@ public class LauncherModel extends BroadcastReceiver
                     final long bindTime = SystemClock.uptimeMillis();
                     final Callbacks callbacks = tryGetCallbacks(oldCallbacks);
                     if (callbacks != null) {
+                        Log.i(MyLogConfig.CTS,TAG+",loadAllApps:"+added.size());
                         callbacks.bindAllApplications(added);
                         if (DEBUG_LOADERS) {
                             Log.d(TAG, "bound " + added.size() + " apps in "
@@ -3065,6 +3069,7 @@ public class LauncherModel extends BroadcastReceiver
                 public void run() {
                     Callbacks cb = getCallback();
                     if (cb != null && callbacks == cb) {
+                        Log.i(MyLogConfig.CTS,TAG+",onPackageIconsUpdated:"+updatedApps.size());
                         cb.bindAppsUpdated(updatedApps);
                     }
                 }
@@ -3196,12 +3201,13 @@ public class LauncherModel extends BroadcastReceiver
                     if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.(un)suspend " + N);
                     mBgAllAppsList.updatePackageFlags(pkgFilter, mUser, flagOp);
                     break;
-                case OP_USER_AVAILABILITY_CHANGE:
+                case OP_USER_AVAILABILITY_CHANGE://问题原因就在这段
                     flagOp = UserManagerCompat.getInstance(context).isQuietModeEnabled(mUser)
                             ? FlagOp.addFlag(ShortcutInfo.FLAG_DISABLED_QUIET_USER)
-                            : FlagOp.removeFlag(ShortcutInfo.FLAG_DISABLED_QUIET_USER);
+                            : FlagOp.removeFlag(ShortcutInfo.FLAG_DISABLED_QUIET_USER);//就是这个flagOP导致的
                     // We want to update all packages for this user.
                     pkgFilter = StringFilter.matchesAll();
+                    Log.i(MyLogConfig.CTS,TAG+",switch (mOp):flagOp："+UserManagerCompat.getInstance(context).isQuietModeEnabled(mUser) +",pkgFilter:"+pkgFilter);
                     mBgAllAppsList.updatePackageFlags(pkgFilter, mUser, flagOp);
                     break;
             }
@@ -3243,6 +3249,7 @@ public class LauncherModel extends BroadcastReceiver
                     public void run() {
                         Callbacks cb = getCallback();
                         if (callbacks == cb && cb != null) {
+                            Log.i(MyLogConfig.CTS,TAG+",run():"+modifiedFinal.size());
                             callbacks.bindAppsUpdated(modifiedFinal);
                         }
                     }

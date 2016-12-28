@@ -30,6 +30,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -40,6 +41,7 @@ import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.android.launcher3.IconCache.IconLoadRequest;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.model.PackageItemInfo;
 
 import java.text.NumberFormat;
@@ -151,7 +153,9 @@ public class BubbleTextView extends TextView
 
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(b);
         if (info.isDisabled()) {
+            Log.i(MyLogConfig.CTS, "applyFromShortcutInfo:" + info);
             iconDrawable.setState(FastBitmapDrawable.State.DISABLED);
+            if(MyLogConfig.noThorwErr) throw new RuntimeException("llllllllll");
         }
         setIcon(iconDrawable, mIconSize);
         if (info.contentDescription != null) {
@@ -168,6 +172,7 @@ public class BubbleTextView extends TextView
     public void applyFromApplicationInfo(AppInfo info) {
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(info.iconBitmap);
         if (info.isDisabled()) {
+            Log.i(MyLogConfig.CTS,"applyFromApplicationInfo:"+info);
             iconDrawable.setState(FastBitmapDrawable.State.DISABLED);
         }
         setIcon(iconDrawable, mIconSize);
@@ -252,10 +257,12 @@ public class BubbleTextView extends TextView
     }
 
     private void updateIconState() {
+        Log.i(MyLogConfig.CTS,"updateIconState:");
         if (mIcon instanceof FastBitmapDrawable) {
             FastBitmapDrawable d = (FastBitmapDrawable) mIcon;
             if (getTag() instanceof ItemInfo
                     && ((ItemInfo) getTag()).isDisabled()) {
+                Log.i(MyLogConfig.CTS,"updateIconState:isDisabled:");
                 d.animateState(FastBitmapDrawable.State.DISABLED);
             } else if (isPressed() || mStayPressed) {
                 d.animateState(FastBitmapDrawable.State.PRESSED);
