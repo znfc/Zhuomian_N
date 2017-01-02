@@ -25,8 +25,10 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
@@ -35,6 +37,7 @@ import com.android.launcher3.util.UiThreadCircularReveal;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.widget.WidgetsContainerView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -769,4 +772,506 @@ public class LauncherStateTransitionAnimation {
     @Thunk void cleanupAnimation() {
         mCurrentAnimation = null;
     }
+
+    //=======================allapp=====================================
+
+    /**
+     * Things to test when changing the following seven functions. - Home from workspace - from
+     * center screen - from other screens - Home from all apps - from center screen - from other
+     * screens - Back from all apps - from center screen - from other screens - Launch app from
+     * workspace and quit - with back - with home - Launch app from all apps and quit - with back -
+     * with home - Go to a screen that's not the default, then all apps, and launch and app, and go
+     * back - with back -with home - On workspace, long press power and go back - with back - with
+     * home - On all apps, long press power and go back - with back - with home - On workspace,
+     * power off - On all apps, power off - Launch an app and turn off the screen while in that app
+     * - Go back with home key - Go back with back key TODO: make this not go to workspace - From
+     * all apps - From workspace - Enter and exit car mode (becuase it causes an extra configuration
+     * changed) - From all apps - From the center workspace - From another workspace
+     */
+
+    /**
+     * Zoom the camera out from the workspace to reveal 'toView'. Assumes that the view to show is
+     * anchored at either the very top or very bottom of the screen.
+     */
+    private void showAppsCustomizeHelper(final boolean animated, final boolean springLoaded) {
+        AppsCustomizePagedView.ContentType contentType =  mLauncher.getmAppsCustomizeContent().getContentType();
+        showAppsCustomizeHelper(animated, springLoaded, contentType);
+    }
+
+    private void showAppsCustomizeHelper(final boolean animated, final boolean springLoaded,
+                                         final AppsCustomizePagedView.ContentType contentType) {
+        final AnimatorSet mStateAnimation ;
+//        if (mStateAnimation != null) {
+//            mStateAnimation.setDuration(0);
+//            mStateAnimation.cancel();
+//            mStateAnimation = null;
+//        }
+
+        boolean material = Utilities.ATLEAST_LOLLIPOP;
+
+        final Resources res = mLauncher.getResources();
+
+        final int duration = res.getInteger(R.integer.config_appsCustomizeZoomInTime);
+        final int fadeDuration = res.getInteger(R.integer.config_appsCustomizeFadeInTime);
+        final int revealDuration = res.getInteger(R.integer.config_appsCustomizeRevealTime);
+        final int itemsAlphaStagger = res.getInteger(R.integer.config_appsCustomizeItemsAlphaStagger);
+
+        final float scale = (float) res.getInteger(R.integer.config_appsCustomizeZoomScaleFactor);
+        final View fromView = mLauncher.getWorkspace();
+        final AppsCustomizeTabHost toView =  mLauncher.getmAppsCustomizeTabHost();
+
+        final ArrayList<View> layerViews = new ArrayList<View>();
+
+        Workspace.State workspaceState =
+                contentType == AppsCustomizePagedView.ContentType.Widgets
+                        ? Workspace.State.OVERVIEW_HIDDEN
+                        : Workspace.State.NORMAL_HIDDEN;
+//        Animator   = mLauncher.getWorkspace().getChangeStateAnimation(workspaceState, animated, layerViews);
+        if (!LauncherAppState.isDisableAllApps() || contentType == AppsCustomizePagedView.ContentType.Widgets) {
+            // Set the content type for the all apps/widgets space
+            mLauncher.getmAppsCustomizeTabHost().setContentTypeImmediate(contentType);
+        }
+
+        // If for some reason our views aren't initialized, don't animate
+        boolean initialized = mLauncher.getAllAppsButton() != null;
+
+        if (animated && initialized) {
+            mStateAnimation = LauncherAnimUtils.createAnimatorSet();
+            final AppsCustomizePagedView content =
+                    (AppsCustomizePagedView) toView.findViewById(R.id.apps_customize_pane_content);
+
+            final View page = content.getPageAt(content.getCurrentPage());
+            final View revealView = toView.findViewById(R.id.fake_page);
+
+            final float initialPanelAlpha = 1f;
+
+            final boolean isWidgetTray = contentType == AppsCustomizePagedView.ContentType.Widgets;
+            if (isWidgetTray) {
+                revealView.setBackground(res.getDrawable(R.drawable.quantum_panel_dark));
+            } else {
+                revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+            }
+
+            // Hide the real page background, and swap in the fake one
+            content.setPageBackgroundsVisible(false);
+            revealView.setVisibility(View.VISIBLE);
+            // We need to hide this view as the animation start will be posted.
+            revealView.setAlpha(0);
+
+            int width = revealView.getMeasuredWidth();
+            int height = revealView.getMeasuredHeight();
+            float revealRadius = (float) Math.sqrt((width * width) / 4 + (height * height) / 4);
+
+            revealView.setTranslationY(0);
+            revealView.setTranslationX(0);
+
+            // Get the y delta between the center of the page and the center of the all apps button
+            int[] allAppsToPanelDelta = Utilities.getCenterDeltaInScreenSpace(revealView, mLauncher.getAllAppsButton(), null);
+
+            float alpha = 0;
+            float xDrift = 0;
+            float yDrift = 0;
+            if (material) {
+                alpha = isWidgetTray ? 0.3f : 1f;
+                yDrift = isWidgetTray ? height / 2 : allAppsToPanelDelta[1];
+                xDrift = isWidgetTray ? 0 : allAppsToPanelDelta[0];
+            } else {
+                yDrift = 2 * height / 3;
+                xDrift = 0;
+            }
+            final float initAlpha = alpha;
+
+            revealView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            layerViews.add(revealView);
+            PropertyValuesHolder panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, 1f);
+            PropertyValuesHolder panelDriftY = PropertyValuesHolder.ofFloat("translationY", yDrift, 0);
+            PropertyValuesHolder panelDriftX = PropertyValuesHolder.ofFloat("translationX", xDrift, 0);
+
+            ObjectAnimator panelAlphaAndDrift =
+                    ObjectAnimator.ofPropertyValuesHolder(revealView, panelAlpha, panelDriftY, panelDriftX);
+
+            panelAlphaAndDrift.setDuration(revealDuration);
+            panelAlphaAndDrift.setInterpolator(new LogDecelerateInterpolator(100, 0));
+
+            mStateAnimation.play(panelAlphaAndDrift);
+
+            if (page != null) {
+                page.setVisibility(View.VISIBLE);
+                page.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                layerViews.add(page);
+
+                ObjectAnimator pageDrift = ObjectAnimator.ofFloat(page, "translationY", yDrift, 0);
+                page.setTranslationY(yDrift);
+                pageDrift.setDuration(revealDuration);
+                pageDrift.setInterpolator(new LogDecelerateInterpolator(100, 0));
+                pageDrift.setStartDelay(itemsAlphaStagger);
+                mStateAnimation.play(pageDrift);
+
+                page.setAlpha(0f);
+                ObjectAnimator itemsAlpha = ObjectAnimator.ofFloat(page, "alpha", 0f, 1f);
+                itemsAlpha.setDuration(revealDuration);
+                itemsAlpha.setInterpolator(new AccelerateInterpolator(1.5f));
+                itemsAlpha.setStartDelay(itemsAlphaStagger);
+                mStateAnimation.play(itemsAlpha);
+            }
+
+            View pageIndicators = toView.findViewById(R.id.apps_customize_page_indicator);
+            pageIndicators.setAlpha(0.01f);
+            ObjectAnimator indicatorsAlpha = ObjectAnimator.ofFloat(pageIndicators, "alpha", 1f);
+            indicatorsAlpha.setDuration(revealDuration);
+            mStateAnimation.play(indicatorsAlpha);
+
+            if (material) {
+                final View allApps = mLauncher.getAllAppsButton();
+                int allAppsButtonSize =mLauncher.getDeviceProfile().allAppsButtonVisualSize;
+                float startRadius = isWidgetTray ? 0 : allAppsButtonSize / 2;
+                Animator reveal =
+                        ViewAnimationUtils.createCircularReveal(revealView, width / 2, height / 2, startRadius,
+                                revealRadius);
+                reveal.setDuration(revealDuration);
+                reveal.setInterpolator(new LogDecelerateInterpolator(100, 0));
+
+                reveal.addListener(new AnimatorListenerAdapter() {
+                    public void onAnimationStart(Animator animation) {
+                        if (!isWidgetTray) {
+                            allApps.setVisibility(View.INVISIBLE);
+                        }
+                    }
+
+                    public void onAnimationEnd(Animator animation) {
+                        if (!isWidgetTray) {
+                            allApps.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+                mStateAnimation.play(reveal);
+            }
+
+            mStateAnimation.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    dispatchOnLauncherTransitionEnd(fromView, animated, false);
+                    dispatchOnLauncherTransitionEnd(toView, animated, false);
+
+                    revealView.setVisibility(View.INVISIBLE);
+                    revealView.setLayerType(View.LAYER_TYPE_NONE, null);
+                    if (page != null) {
+                        page.setLayerType(View.LAYER_TYPE_NONE, null);
+                    }
+                    content.setPageBackgroundsVisible(true);
+
+                    // Hide the search bar
+//                    if (mLauncher.getSearchDropTargetBar() != null) {
+//                        mLauncher.getSearchDropTargetBar().hideSearchBar(false);
+//                    }
+                }
+
+            });
+
+//            if (workspaceAnim != null) {
+//                mStateAnimation.play(workspaceAnim);
+//            }
+
+            dispatchOnLauncherTransitionPrepare(fromView, animated, false);
+            dispatchOnLauncherTransitionPrepare(toView, animated, false);
+            final AnimatorSet stateAnimation = mStateAnimation;
+            final Runnable startAnimRunnable = new Runnable() {
+                public void run() {
+                    // Check that mStateAnimation hasn't changed while
+                    // we waited for a layout/draw pass
+                    if (mStateAnimation != stateAnimation) return;
+                    dispatchOnLauncherTransitionStart(fromView, animated, false);
+                    dispatchOnLauncherTransitionStart(toView, animated, false);
+
+                    revealView.setAlpha(initAlpha);
+                    if (Utilities.ATLEAST_LOLLIPOP) {
+                        for (int i = 0; i < layerViews.size(); i++) {
+                            View v = layerViews.get(i);
+                            if (v != null) {
+                                boolean attached = true;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                    attached = v.isAttachedToWindow();
+                                }
+                                if (attached) v.buildLayer();
+                            }
+                        }
+                    }
+                    mStateAnimation.start();
+                }
+            };
+            toView.bringToFront();
+            toView.setVisibility(View.VISIBLE);
+            toView.post(startAnimRunnable);
+        } else {
+            toView.setTranslationX(0.0f);
+            toView.setTranslationY(0.0f);
+            toView.setScaleX(1.0f);
+            toView.setScaleY(1.0f);
+            toView.setVisibility(View.VISIBLE);
+            toView.bringToFront();
+
+//            if (!springLoaded && !LauncherAppState.getInstance().isScreenLarge()) {
+//                // Hide the search bar
+//                if (mLauncher.getSearchDropTargetBar() != null) {
+//                    mSearchDropTargetBar.hideSearchBar(false);
+//                }
+//            }
+            dispatchOnLauncherTransitionPrepare(fromView, animated, false);
+            dispatchOnLauncherTransitionStart(fromView, animated, false);
+            dispatchOnLauncherTransitionEnd(fromView, animated, false);
+            dispatchOnLauncherTransitionPrepare(toView, animated, false);
+            dispatchOnLauncherTransitionStart(toView, animated, false);
+            dispatchOnLauncherTransitionEnd(toView, animated, false);
+        }
+    }
+
+    /**
+     * zoom : 使急速上升; 使猛增;
+     * Zoom the camera back into the workspace, hiding 'fromView'. This is the opposite of
+     * showAppsCustomizeHelper.
+     *
+     * @param animated If true, the transition will be animated.
+     */
+    private void hideAppsCustomizeHelper(Workspace.State toState, final boolean animated, final boolean springLoaded,
+                                         final Runnable onCompleteRunnable) {
+        final AnimatorSet mStateAnimation ;
+//        if (mStateAnimation != null) {
+//            mStateAnimation.setDuration(0);
+//            mStateAnimation.cancel();
+//            mStateAnimation = null;
+//        }
+
+        boolean material = Utilities.ATLEAST_LOLLIPOP;
+        Resources res = mLauncher.getResources();
+
+        final int duration = res.getInteger(R.integer.config_appsCustomizeZoomOutTime);
+        final int fadeOutDuration = res.getInteger(R.integer.config_appsCustomizeFadeOutTime);
+        final int revealDuration = res.getInteger(R.integer.config_appsCustomizeConcealTime);
+        final int itemsAlphaStagger = res.getInteger(R.integer.config_appsCustomizeItemsAlphaStagger);
+
+        final float scaleFactor = (float) res.getInteger(R.integer.config_appsCustomizeZoomScaleFactor);
+        final View fromView = mLauncher.getmAppsCustomizeTabHost();
+        final View toView = mLauncher.getWorkspace();
+        Animator workspaceAnim = null;
+        final ArrayList<View> layerViews = new ArrayList<View>();
+//
+//        if (toState == Workspace.State.NORMAL) {
+//            workspaceAnim = mLauncher.getWorkspace().getChangeStateAnimation(toState, animated, layerViews);
+//        } else if (toState == Workspace.State.SPRING_LOADED || toState == Workspace.State.OVERVIEW) {
+//            workspaceAnim = mLauncher.getWorkspace().getChangeStateAnimation(toState, animated, layerViews);
+//        }
+
+        // If for some reason our views aren't initialized, don't animate
+        boolean initialized = mLauncher.getAllAppsButton() != null;
+
+        if (animated && initialized) {
+            mStateAnimation = LauncherAnimUtils.createAnimatorSet();
+            if (workspaceAnim != null) {
+                mStateAnimation.play(workspaceAnim);
+            }
+
+            final AppsCustomizePagedView content =
+                    (AppsCustomizePagedView) fromView.findViewById(R.id.apps_customize_pane_content);
+
+            final View page = content.getPageAt(content.getNextPage());
+
+            // We need to hide side pages of the Apps / Widget tray to avoid some ugly edge cases
+            int count = content.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = content.getChildAt(i);
+                if (child != page) {
+                    child.setVisibility(View.INVISIBLE);
+                }
+            }
+            final View revealView = fromView.findViewById(R.id.fake_page);
+
+            // hideAppsCustomizeHelper is called in some cases when it is already hidden
+            // don't perform all these no-op animations. In particularly, this was causing
+            // the all-apps button to pop in and out.
+            if (fromView.getVisibility() == View.VISIBLE) {
+                AppsCustomizePagedView.ContentType contentType = content.getContentType();
+                final boolean isWidgetTray = contentType == AppsCustomizePagedView.ContentType.Widgets;
+
+                if (isWidgetTray) {
+                    revealView.setBackground(res.getDrawable(R.drawable.quantum_panel_dark));
+                } else {
+                    revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                }
+
+                int width = revealView.getMeasuredWidth();
+                int height = revealView.getMeasuredHeight();
+                float revealRadius = (float) Math.sqrt((width * width) / 4 + (height * height) / 4);
+
+                // Hide the real page background, and swap in the fake one
+                revealView.setVisibility(View.VISIBLE);
+                content.setPageBackgroundsVisible(false);
+
+                final View allAppsButton = mLauncher.getAllAppsButton();
+                revealView.setTranslationY(0);
+                int[] allAppsToPanelDelta = Utilities.getCenterDeltaInScreenSpace(revealView, allAppsButton, null);
+
+                float xDrift = 0;
+                float yDrift = 0;
+                if (material) {
+                    yDrift = isWidgetTray ? height / 2 : allAppsToPanelDelta[1];
+                    xDrift = isWidgetTray ? 0 : allAppsToPanelDelta[0];
+                } else {
+                    yDrift = 5 * height / 4;
+                    xDrift = 0;
+                }
+
+                revealView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                TimeInterpolator decelerateInterpolator =
+                        material ? new LogDecelerateInterpolator(100, 0) : new LogDecelerateInterpolator(30, 0);
+
+                // The vertical motion of the apps panel should be delayed by one frame
+                // from the conceal animation in order to give the right feel. We correpsondingly
+                // shorten the duration so that the slide and conceal end at the same time.
+                ObjectAnimator panelDriftY = LauncherAnimUtils.ofFloat(revealView, "translationY", 0, yDrift);
+                panelDriftY.setDuration(revealDuration - SINGLE_FRAME_DELAY);
+                panelDriftY.setStartDelay(itemsAlphaStagger + SINGLE_FRAME_DELAY);
+                panelDriftY.setInterpolator(decelerateInterpolator);
+                mStateAnimation.play(panelDriftY);
+
+                ObjectAnimator panelDriftX = LauncherAnimUtils.ofFloat(revealView, "translationX", 0, xDrift);
+                panelDriftX.setDuration(revealDuration - SINGLE_FRAME_DELAY);
+                panelDriftX.setStartDelay(itemsAlphaStagger + SINGLE_FRAME_DELAY);
+                panelDriftX.setInterpolator(decelerateInterpolator);
+                mStateAnimation.play(panelDriftX);
+
+                if (isWidgetTray || !material) {
+                    float finalAlpha = material ? 0.4f : 0f;
+                    revealView.setAlpha(1f);
+                    ObjectAnimator panelAlpha = LauncherAnimUtils.ofFloat(revealView, "alpha", 1f, finalAlpha);
+                    panelAlpha.setDuration(revealDuration);
+                    panelAlpha.setInterpolator(material ? decelerateInterpolator : new AccelerateInterpolator(1.5f));
+                    mStateAnimation.play(panelAlpha);
+                }
+
+                if (page != null) {
+                    page.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
+                    ObjectAnimator pageDrift = LauncherAnimUtils.ofFloat(page, "translationY", 0, yDrift);
+                    page.setTranslationY(0);
+                    pageDrift.setDuration(revealDuration - SINGLE_FRAME_DELAY);
+                    pageDrift.setInterpolator(decelerateInterpolator);
+                    pageDrift.setStartDelay(itemsAlphaStagger + SINGLE_FRAME_DELAY);
+                    mStateAnimation.play(pageDrift);
+
+                    page.setAlpha(1f);
+                    ObjectAnimator itemsAlpha = LauncherAnimUtils.ofFloat(page, "alpha", 1f, 0f);
+                    itemsAlpha.setDuration(100);
+                    itemsAlpha.setInterpolator(decelerateInterpolator);
+                    mStateAnimation.play(itemsAlpha);
+                }
+
+                View pageIndicators = fromView.findViewById(R.id.apps_customize_page_indicator);
+                pageIndicators.setAlpha(1f);
+                ObjectAnimator indicatorsAlpha = LauncherAnimUtils.ofFloat(pageIndicators, "alpha", 0f);
+                indicatorsAlpha.setDuration(revealDuration);
+                indicatorsAlpha.setInterpolator(new DecelerateInterpolator(1.5f));
+                mStateAnimation.play(indicatorsAlpha);
+
+                width = revealView.getMeasuredWidth();
+
+                if (material) {
+                    if (!isWidgetTray) {
+                        allAppsButton.setVisibility(View.INVISIBLE);
+                    }
+                    int allAppsButtonSize =mLauncher.getDeviceProfile().allAppsButtonVisualSize;
+                    float finalRadius = isWidgetTray ? 0 : allAppsButtonSize / 2;
+                    Animator reveal =
+                            LauncherAnimUtils.createCircularReveal(revealView, width / 2, height / 2, revealRadius,
+                                    finalRadius);
+                    reveal.setInterpolator(new LogDecelerateInterpolator(100, 0));
+                    reveal.setDuration(revealDuration);
+                    reveal.setStartDelay(itemsAlphaStagger);
+
+                    reveal.addListener(new AnimatorListenerAdapter() {
+                        public void onAnimationEnd(Animator animation) {
+                            revealView.setVisibility(View.INVISIBLE);
+                            if (!isWidgetTray) {
+                                allAppsButton.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
+
+                    mStateAnimation.play(reveal);
+                }
+
+                dispatchOnLauncherTransitionPrepare(fromView, animated, true);
+                dispatchOnLauncherTransitionPrepare(toView, animated, true);
+//                mLauncher.getmAppsCustomizeContent().stopScrolling();
+            }
+
+            mStateAnimation.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    fromView.setVisibility(View.GONE);
+                    dispatchOnLauncherTransitionEnd(fromView, animated, true);
+                    dispatchOnLauncherTransitionEnd(toView, animated, true);
+                    if (onCompleteRunnable != null) {
+                        onCompleteRunnable.run();
+                    }
+
+                    revealView.setLayerType(View.LAYER_TYPE_NONE, null);
+                    if (page != null) {
+                        page.setLayerType(View.LAYER_TYPE_NONE, null);
+                    }
+                    content.setPageBackgroundsVisible(true);
+                    // Unhide side pages
+                    int count = content.getChildCount();
+                    for (int i = 0; i < count; i++) {
+                        View child = content.getChildAt(i);
+                        child.setVisibility(View.VISIBLE);
+                    }
+
+                    // Reset page transforms
+                    if (page != null) {
+                        page.setTranslationX(0);
+                        page.setTranslationY(0);
+                        page.setAlpha(1);
+                    }
+                    content.setCurrentPage(content.getNextPage());
+
+                    mLauncher.getmAppsCustomizeContent().updateCurrentPageScroll();
+                }
+            });
+
+            final AnimatorSet stateAnimation = mStateAnimation;
+            final Runnable startAnimRunnable = new Runnable() {
+                public void run() {
+                    // Check that mStateAnimation hasn't changed while
+                    // we waited for a layout/draw pass
+                    if (mStateAnimation != stateAnimation) return;
+                    dispatchOnLauncherTransitionStart(fromView, animated, false);
+                    dispatchOnLauncherTransitionStart(toView, animated, false);
+
+                    if (Utilities.ATLEAST_LOLLIPOP) {
+                        for (int i = 0; i < layerViews.size(); i++) {
+                            View v = layerViews.get(i);
+                            if (v != null) {
+                                boolean attached = true;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                    attached = v.isAttachedToWindow();
+                                }
+                                if (attached) v.buildLayer();
+                            }
+                        }
+                    }
+                    mStateAnimation.start();
+                }
+            };
+            fromView.post(startAnimRunnable);
+        } else {
+            fromView.setVisibility(View.GONE);
+            dispatchOnLauncherTransitionPrepare(fromView, animated, true);
+            dispatchOnLauncherTransitionStart(fromView, animated, true);
+            dispatchOnLauncherTransitionEnd(fromView, animated, true);
+            dispatchOnLauncherTransitionPrepare(toView, animated, true);
+            dispatchOnLauncherTransitionStart(toView, animated, true);
+            dispatchOnLauncherTransitionEnd(toView, animated, true);
+        }
+    }
+    //=======================allapp=====================================
 }

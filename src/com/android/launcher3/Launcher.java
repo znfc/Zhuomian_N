@@ -271,6 +271,14 @@ public class Launcher extends Activity
 
     private SearchDropTargetBar mSearchDropTargetBar;
 
+    public AppsCustomizePagedView getmAppsCustomizeContent() {
+        return mAppsCustomizeContent;
+    }
+
+    public AppsCustomizeTabHost getmAppsCustomizeTabHost() {
+        return mAppsCustomizeTabHost;
+    }
+
     private AppsCustomizeTabHost mAppsCustomizeTabHost;
     private AppsCustomizePagedView mAppsCustomizeContent;
 
@@ -3810,7 +3818,7 @@ Log.i("zhaoall","mstate:"+mState);
                 WorkspaceStateTransitionAnimation.SCROLL_TO_CURRENT_PAGE, true /* animated */,
                 null /* onCompleteRunnable */);
         mState = isAppsViewVisible() ? State.APPS_SPRING_LOADED : State.WIDGETS_SPRING_LOADED;
-        Log.i("zhaoall","进入spring模式");
+        Log.i("zhaoall", "进入spring模式");
 //        throw new RuntimeException("进入spring模式报错");
     }
 
@@ -3853,6 +3861,9 @@ Log.i("zhaoall","mstate:"+mState);
         }
     }
 
+    //===============================================allapp=========================================
+
+    //===============================================allapp=========================================
     /**
      * Updates the set of predicted apps if it hasn't been updated since the last time Launcher was
      * resumed.
