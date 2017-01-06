@@ -17,6 +17,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res-auto">
     <com.android.launcher3.CellLayout
+        android:background="@color/hotseat_bg"
         android:id="@+id/layout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

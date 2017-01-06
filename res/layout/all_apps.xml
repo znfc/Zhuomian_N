@@ -20,6 +20,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res-auto"
     android:id="@+id/apps_view"
+    android:background="@color/all_apps_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -27,6 +28,7 @@
 
     <View
         android:id="@+id/reveal_view"
+        android:background="@color/reveal_view_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
@@ -39,6 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/main_content"
+        android:background="@color/allAppsrecyclerviewcontainerview_bg"
         android:saveEnabled="false"
         android:visibility="gone"
         android:layout_gravity="center"
@@ -49,6 +52,7 @@
         <!-- DO NOT CHANGE THE ID -->
         <com.android.launcher3.allapps.AllAppsRecyclerView
             android:id="@+id/apps_list_view"
+            android:background="@color/allappsrecyclerview_bg"
             android:theme="@style/Theme.Light.CustomOverscroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -60,6 +64,7 @@
 
         <LinearLayout
             android:id="@+id/search_container"
+
             android:layout_width="match_parent"
             android:saveEnabled="false"
             android:layout_height="@dimen/all_apps_search_bar_height"

@@ -478,8 +478,8 @@ public class Launcher extends Activity
              * 注册未读短信数据库监听者
              * 将这个发送者改为单例模式这样注册就会只注册一个，避免重复注册
              */
-            UnreadContentObserver.getUnreadContentObserver(this).registerObserver();
-            UnreadContentObserver.getUnreadContentObserver(this).getUnreadMms();
+//            UnreadContentObserver.getUnreadContentObserver(this).registerObserver();
+//            UnreadContentObserver.getUnreadContentObserver(this).getUnreadMms();
         }
         /**@}**/
         mIconCache = app.getIconCache();

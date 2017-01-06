@@ -164,7 +164,7 @@ public class MTKUnreadLoader extends BroadcastReceiver {
                             + ", unreadNum = " + shortcut.mUnreadNum);
                 }
             } catch (Settings.SettingNotFoundException e) {
-            }
+            } catch (Exception e){}
         }
         if (LauncherLog.DEBUG_UNREAD) {
             LauncherLog.d(TAG, "initUnreadNumberFromSystem end:" + getUnreadSupportShortcutInfo());

@@ -22,9 +22,11 @@
     android:id="@+id/launcher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/launcherrootview_bg"
     android:fitsSystemWindows="true">
 
     <com.android.launcher3.DragLayer
+        android:background="@color/draglayer_bg"
         android:id="@+id/drag_layer"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -32,6 +34,7 @@
         android:layout_height="match_parent">
 
         <com.android.launcher3.FocusIndicatorView
+            android:background="@color/focusIndicatorView_bg"
             android:id="@+id/focus_indicator"
             android:layout_width="52dp"
             android:layout_height="52dp" />
@@ -39,6 +42,7 @@
         <!-- The workspace contains 5 screens of cells -->
         <!-- DO NOT CHANGE THE ID -->
         <com.android.launcher3.Workspace
+            android:background="@color/workspace_bg"
             android:id="@+id/workspace"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -48,11 +52,13 @@
 
         <!-- DO NOT CHANGE THE ID -->
         <include layout="@layout/hotseat"
+            android:background="@color/hotseat_bg"
             android:id="@+id/hotseat"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <include layout="@layout/overview_panel"
+            android:background="@color/overview_panel_bg"
             android:id="@+id/overview_panel"
             android:visibility="gone" />
 
@@ -61,21 +67,25 @@
         <include
             android:id="@+id/page_indicator"
             layout="@layout/page_indicator"
+            android:background="@color/page_indicator_bg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal" />
 
         <include
             android:id="@+id/search_drop_target_bar"
-            layout="@layout/search_drop_target_bar" />
+            layout="@layout/search_drop_target_bar"
+            android:background="@color/search_drop_target_bar_bg" />
 
         <include layout="@layout/widgets_view"
+            android:background="@color/widgets_view_bg"
             android:id="@+id/widgets_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible" />
 
         <include layout="@layout/all_apps"
+            android:background="@color/all_apps_bg"
             android:id="@+id/apps_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
