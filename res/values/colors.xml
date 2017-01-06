@@ -70,6 +70,10 @@
     <color name="allAppsrecyclerviewcontainerview_bg">#c804ff71</color>
     <color name="allappsrecyclerview_bg">#c8abff04</color>
 
+    <!--Widgets-->
+    <color name="WidgetsContainerView_bg">#c5ff0460</color>
+    <color name="WidgetsRecyclerView_bg">#c5042aff</color>
+
     <!--workspace-->
     <color name="workspace_screen_bg">#b3fbff04</color>
 </resources>
