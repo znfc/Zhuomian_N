@@ -51,4 +51,25 @@
     <color name="widgets_view_item_text_color">#C4C4C4</color>
     <color name="widgets_cell_color">#263238</color>
     <color name="widget_text_panel">#FF374248</color>
+
+    <!--color debug -->
+    <!--launcher-->
+    <color name="launcherrootview_bg">#4d0050fc</color>
+    <color name="draglayer_bg">#5efc8600</color>
+    <color name="focusIndicatorView_bg">#5e3f00fc</color>
+    <color name="workspace_bg">#9700027e</color>
+    <color name="hotseat_bg">#e770a702</color>
+    <color name="overview_panel_bg">#ade43702</color>
+    <color name="page_indicator_bg">#d204ffee</color>
+    <color name="search_drop_target_bar_bg">#d2ac1400</color>
+    <color name="widgets_view_bg">#d236ff04</color>
+
+    <!--allapp-->
+    <color name="all_apps_bg">#84ea04ff</color>
+    <color name="reveal_view_bg">#c82104ff</color>
+    <color name="allAppsrecyclerviewcontainerview_bg">#c804ff71</color>
+    <color name="allappsrecyclerview_bg">#c8abff04</color>
+
+    <!--workspace-->
+    <color name="workspace_screen_bg">#b3fbff04</color>
 </resources>

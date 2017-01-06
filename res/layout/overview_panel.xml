@@ -19,6 +19,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal|bottom"
     android:gravity="top"
+    android:background="@color/overview_panel_bg"
     android:orientation="horizontal" >
 
     <TextView
