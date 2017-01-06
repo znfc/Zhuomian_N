@@ -37,6 +37,7 @@
 
     <FrameLayout
         android:id="@+id/main_content"
+        android:background="@color/WidgetsContainerView_bg"
         android:layout_gravity="center"
         android:elevation="15dp"
         android:visibility="gone"
@@ -45,6 +46,7 @@
 
         <com.android.launcher3.widget.WidgetsRecyclerView
             android:id="@+id/widgets_list_view"
+            android:background="@color/WidgetsRecyclerView_bg"
             android:theme="@style/Theme.Dark.CustomOverscroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
