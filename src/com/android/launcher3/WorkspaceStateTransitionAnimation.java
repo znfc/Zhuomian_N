@@ -30,6 +30,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.DecelerateInterpolator;
 
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.Thunk;
 
 import java.util.HashMap;
@@ -126,6 +127,8 @@ class ZoomInInterpolator implements TimeInterpolator {
  */
 class TransitionStates {
 
+    //=============原始状态标志位=======start
+    //这些带old的是指workspace的要转变前的状态
     // Raw states
     final boolean oldStateIsNormal;
     final boolean oldStateIsSpringLoaded;
@@ -133,11 +136,13 @@ class TransitionStates {
     final boolean oldStateIsOverviewHidden;
     final boolean oldStateIsOverview;
 
+    //这些不带old的是指workspace的要转变到那个界面的所在状态位
     final boolean stateIsNormal;
     final boolean stateIsSpringLoaded;
     final boolean stateIsNormalHidden;
     final boolean stateIsOverviewHidden;
     final boolean stateIsOverview;
+    //=============原始状态标志位========end
 
     // Convenience members
     final boolean workspaceToAllApps;
@@ -225,7 +230,7 @@ public class WorkspaceStateTransitionAnimation {
         TransitionStates states = new TransitionStates(fromState, toState);
         int workspaceDuration = getAnimationDuration(states);
         animateWorkspace(states, toPage, animated, workspaceDuration, layerViews,
-                accessibilityEnabled);
+                accessibilityEnabled);//注释掉这个点击allapp按钮workspace就不能被隐藏掉了
         animateBackgroundGradient(states, animated, BACKGROUND_FADE_OUT_DURATION);
         return mStateAnimator;
     }
@@ -284,8 +289,9 @@ public class WorkspaceStateTransitionAnimation {
         float finalWorkspaceTranslationY = states.stateIsOverview || states.stateIsOverviewHidden ?
                 mWorkspace.getOverviewModeTranslationY() : 0;
 
-        final int childCount = mWorkspace.getChildCount();
-        final int customPageCount = mWorkspace.numCustomPages();
+        final int childCount = mWorkspace.getChildCount();//这个获得的是work有几页
+        final int customPageCount = mWorkspace.numCustomPages();//这个获得是是否有左页
+        MyLogConfig.w(MyLogConfig.state,"customPageCount:"+customPageCount);
 
         mNewScale = 1.0f;
 
@@ -497,12 +503,12 @@ public class WorkspaceStateTransitionAnimation {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
                         dragLayer.setBackgroundAlpha(
-                                ((Float)animation.getAnimatedValue()).floatValue());
+                                ((Float) animation.getAnimatedValue()).floatValue());
                     }
                 });
                 bgFadeOutAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
                 bgFadeOutAnimation.setDuration(duration);
-                mStateAnimator.play(bgFadeOutAnimation);
+//                mStateAnimator.play(bgFadeOutAnimation);
             } else {
                 dragLayer.setBackgroundAlpha(finalAlpha);
             }

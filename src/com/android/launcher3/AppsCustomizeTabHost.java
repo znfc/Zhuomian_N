@@ -41,6 +41,7 @@ import java.util.ArrayList;
 //TODO 这个类的作用？
 
 /**
+ * 这个是L的上的类
  * 难道是将AppsCustomizePagedView再封装一下？2016.11.18
  * 目前来看这个是将背景，AppsCustomizePagedView ，页面指示器组合在一起的一个大容器 2016.11.18
  */

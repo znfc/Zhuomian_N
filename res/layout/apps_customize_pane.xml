@@ -16,7 +16,7 @@
 <com.android.launcher3.AppsCustomizeTabHost
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res-auto"
-    android:background="#a2ff04ea"
+    android:background="@color/AppsCustomizeTabHost_bg"
     android:clipChildren="false">
 
     <LinearLayout
@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
-        android:background="#bd49ff01"
+        android:background="@color/AppsCustomizeTabHost_content_bg"
         android:orientation="vertical">
 
         <FrameLayout
@@ -49,7 +49,7 @@
                 android:id="@+id/apps_customize_pane_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#55ff0000"
+                android:background="@color/AppsCustomizePagedView_bg"
                 launcher:widgetCountX="@integer/apps_customize_widget_cell_count_x"
                 launcher:widgetCountY="@integer/apps_customize_widget_cell_count_y"
                 launcher:maxGap="@dimen/workspace_max_gap"

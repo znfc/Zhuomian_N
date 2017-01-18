@@ -33,6 +33,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import com.android.launcher3.allapps.AllAppsContainerView;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.UiThreadCircularReveal;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.widget.WidgetsContainerView;
@@ -122,7 +123,10 @@ public class LauncherStateTransitionAnimation {
     /**
      * Starts an animation to the apps view.
      *
-     * @param startSearchAfterTransition Immediately starts app search after the transition to
+     * @param fromWorkspaceState 这个记录了从workspace的哪个界面（用workspace自带的状态位标示）进入allapp界面
+     * @param animated  是否在进入allapp界面的时候开启动画
+     * @param startSearchAfterTransition 是否立即启动搜索长按allapp按键的时候这个值是true
+     *                                   Immediately starts app search after the transition to
      *                                   All Apps is completed.
      */
     public void startAnimationToAllApps(final Workspace.State fromWorkspaceState,
@@ -150,13 +154,15 @@ public class LauncherStateTransitionAnimation {
             @Override
             void onTransitionComplete() {
                 if (startSearchAfterTransition) {
-                    toView.startAppsSearch();
+//                    toView.startAppsSearch();
                 }
             }
         };
         // Only animate the search bar if animating from spring loaded mode back to all apps
-        mCurrentAnimation = startAnimationToOverlay(fromWorkspaceState,
-                Workspace.State.NORMAL_HIDDEN, buttonView, toView, animated, cb);
+//        mCurrentAnimation = startAnimationToOverlay(fromWorkspaceState,
+//                Workspace.State.NORMAL_HIDDEN, buttonView, toView, animated, cb);
+        mCurrentAnimation =  showAppsCustomizeHelper(true, true);
+        //修改的地方
     }
 
     /**
@@ -194,40 +200,51 @@ public class LauncherStateTransitionAnimation {
     }
 
     /**
-     * Creates and starts a new animation to a particular overlay view.
+     *
+     * @param fromWorkspaceState
+     * @param toWorkspaceState
+     * @param buttonView
+     * @param toView
+     * @param animated
+     * @param pCb
+     * @return
+     * Creates and starts a new animation to a particular overlay view.创建并启动特定叠加视图的新动画。
+     * 这个方法只有进入allapp或者widget时会调用。
      */
     @SuppressLint("NewApi")
     private AnimatorSet startAnimationToOverlay(
             final Workspace.State fromWorkspaceState, final Workspace.State toWorkspaceState,
             final View buttonView, final BaseContainerView toView,
             final boolean animated, final PrivateTransitionCallbacks pCb) {
-        Log.i("zhao11state","startAnimationToOverlay:");
+        Log.i(MyLogConfig.state,"startAnimationToOverlay:");
         final AnimatorSet animation = LauncherAnimUtils.createAnimatorSet();
         final Resources res = mLauncher.getResources();
         final boolean material = Utilities.ATLEAST_LOLLIPOP;
-        final int revealDuration = res.getInteger(R.integer.config_overlayRevealTime);
+        final int revealDuration = res.getInteger(R.integer.config_overlayRevealTime)*10;
         final int itemsAlphaStagger = res.getInteger(R.integer.config_overlayItemsAlphaStagger);
 
         final View fromView = mLauncher.getWorkspace();
 
-        final HashMap<View, Integer> layerViews = new HashMap<>();
+        final HashMap<View, Integer> layerViews = new HashMap<>();//这个layerViews不知道是干什么的
 
         // If for some reason our views aren't initialized, don't animate
-        boolean initialized = buttonView != null;
+        boolean initialized = buttonView != null;//buttonView 是allappbutton
 
         // Cancel the current animation
         cancelAnimation();
+//==================================move start
+//        // Create the workspace animation.
+//        // NOTE: this call apparently also sets the state for the workspace if !animated
+//        Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
+//                animated, layerViews);
+//==================================move end
 
-        // Create the workspace animation.
-        // NOTE: this call apparently also sets the state for the workspace if !animated
-        Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
-                animated, layerViews);
-
+        //这个就是进入allapp界面时workspace上的google search bar 往上跑的动画
         // Animate the search bar
         startWorkspaceSearchBarAnimation(
                 toWorkspaceState, animated ? revealDuration : 0, animation);
 
-        Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView);
+//        Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView); //move
 
         final View contentView = toView.getContentView();
 
@@ -250,7 +267,8 @@ public class LauncherStateTransitionAnimation {
             if (material) {
                 int[] buttonViewToPanelDelta = Utilities.getCenterDeltaInScreenSpace(
                         revealView, buttonView, null);
-                revealViewToAlpha = pCb.materialRevealViewFinalAlpha;
+                revealViewToAlpha = 0.2f;
+//                revealViewToAlpha = pCb.materialRevealViewFinalAlpha;
                 revealViewToYDrift = buttonViewToPanelDelta[1];
                 revealViewToXDrift = buttonViewToPanelDelta[0];
             } else {
@@ -261,7 +279,7 @@ public class LauncherStateTransitionAnimation {
 
             // Create the animators
             PropertyValuesHolder panelAlpha =
-                    PropertyValuesHolder.ofFloat("alpha", revealViewToAlpha, 1f);
+                    PropertyValuesHolder.ofFloat("alpha", revealViewToAlpha, 0.2f);
             PropertyValuesHolder panelDriftY =
                     PropertyValuesHolder.ofFloat("translationY", revealViewToYDrift, 0);
             PropertyValuesHolder panelDriftX =
@@ -277,7 +295,7 @@ public class LauncherStateTransitionAnimation {
 
             // Setup the animation for the content view
             contentView.setVisibility(View.VISIBLE);
-            contentView.setAlpha(0f);
+            contentView.setAlpha(0.2f);
             contentView.setTranslationY(revealViewToYDrift);
             layerViews.put(contentView, BUILD_AND_SET_LAYER);
 
@@ -287,13 +305,13 @@ public class LauncherStateTransitionAnimation {
             pageDrift.setDuration(revealDuration);
             pageDrift.setInterpolator(new LogDecelerateInterpolator(100, 0));
             pageDrift.setStartDelay(itemsAlphaStagger);
-            animation.play(pageDrift);
+            animation.play(pageDrift);//这个就是进入allapp界面，界面自下而上的动画
 
-            ObjectAnimator itemsAlpha = ObjectAnimator.ofFloat(contentView, "alpha", 0f, 1f);
+            ObjectAnimator itemsAlpha = ObjectAnimator.ofFloat(contentView, "alpha", 0f, 0.2f);
             itemsAlpha.setDuration(revealDuration);
             itemsAlpha.setInterpolator(new AccelerateInterpolator(1.5f));
             itemsAlpha.setStartDelay(itemsAlphaStagger);
-            animation.play(itemsAlpha);
+            animation.play(itemsAlpha);//这个就是进入allapp界面，界面从透明到不透明
 
             if (material) {
                 float startRadius = pCb.getMaterialRevealViewStartFinalRadius();
@@ -306,7 +324,7 @@ public class LauncherStateTransitionAnimation {
                 if (listener != null) {
                     reveal.addListener(listener);
                 }
-                animation.play(reveal);
+                animation.play(reveal);//这个是那个reveal面纱的圆形扩散动画
             }
 
             animation.addListener(new AnimatorListenerAdapter() {
@@ -332,16 +350,22 @@ public class LauncherStateTransitionAnimation {
 
             });
 
+            // Create the workspace animation.
+            // NOTE: this call apparently also sets the state for the workspace if !animated
+            Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
+                    animated, layerViews);
+
             // Play the workspace animation
             if (workspaceAnim != null) {
-                animation.play(workspaceAnim);
+                animation.play(workspaceAnim);//这个就是进入allapp界面隐藏workspace的
             }
 
-            animation.play(updateTransitionStepAnim);
+            Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView);
+            animation.play(updateTransitionStepAnim);//这个不知道是干什么的，这个其实是好多都是空方法
 
             // Dispatch the prepare transition signal
-            dispatchOnLauncherTransitionPrepare(fromView, animated, false);
-            dispatchOnLauncherTransitionPrepare(toView, animated, false);
+            dispatchOnLauncherTransitionPrepare(fromView, animated, false);//这个不知道是干什么的
+            dispatchOnLauncherTransitionPrepare(toView, animated, false);//这个不知道是干什么的
 
             final AnimatorSet stateAnimation = animation;
             final Runnable startAnimRunnable = new Runnable() {
@@ -350,11 +374,14 @@ public class LauncherStateTransitionAnimation {
                     // we waited for a layout/draw pass
                     if (mCurrentAnimation != stateAnimation)
                         return;
+                    //下边这个不知道是干什么的
+                    //看了代码发现其实调用了workspace的onLauncherTransitionStart，而这个方法是个空方法
                     dispatchOnLauncherTransitionStart(fromView, animated, false);
+                    //这个不知道是干什么的
                     dispatchOnLauncherTransitionStart(toView, animated, false);
 
                     // Enable all necessary layers
-                    for (View v : layerViews.keySet()) {
+                    for (View v : layerViews.keySet()) {//这个不知道是干什么的
                         if (layerViews.get(v) == BUILD_AND_SET_LAYER) {
                             v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                         }
@@ -450,9 +477,10 @@ public class LauncherStateTransitionAnimation {
             }
         };
         // Only animate the search bar if animating to spring loaded mode from all apps
-        mCurrentAnimation = startAnimationToWorkspaceFromOverlay(fromWorkspaceState, toWorkspaceState,
-                toWorkspacePage, mLauncher.getAllAppsButton(), appsView,
-                animated, onCompleteRunnable, cb);
+//        mCurrentAnimation = startAnimationToWorkspaceFromOverlay(fromWorkspaceState, toWorkspaceState,
+//                toWorkspacePage, mLauncher.getAllAppsButton(), appsView,
+//                animated, onCompleteRunnable, cb);
+        mCurrentAnimation = hideAppsCustomizeHelper(toWorkspaceState,toWorkspacePage,animated ,onCompleteRunnable);
     }
 
     /**
@@ -483,16 +511,16 @@ public class LauncherStateTransitionAnimation {
 
     /**
      * Creates and starts a new animation to the workspace.
+     * 这个方法就是从allapp界面或者widget界面到workspace界面的
      */
-    boolean b =true;
     private AnimatorSet startAnimationToWorkspaceFromOverlay(
             final Workspace.State fromWorkspaceState, final Workspace.State toWorkspaceState,
             final int toWorkspacePage,
             final View buttonView, final BaseContainerView fromView,
             final boolean animated, final Runnable onCompleteRunnable,
             final PrivateTransitionCallbacks pCb) {
-        Log.i("zhao11state","startAnimationToWorkspaceFromOverlay:");
-//        if(b) throw new RuntimeException("11111111111111111111");
+        Log.i(MyLogConfig.state,"startAnimationToWorkspaceFromOverlay:");
+        if(MyLogConfig.noThorwErr) throw new RuntimeException("11111111111111111111");
         final AnimatorSet animation = LauncherAnimUtils.createAnimatorSet();
         final Resources res = mLauncher.getResources();
         final boolean material = Utilities.ATLEAST_LOLLIPOP;
@@ -521,7 +549,7 @@ public class LauncherStateTransitionAnimation {
 
         Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView);
 
-        if (animated && initialized) {
+        if (!animated && initialized) {
             // Play the workspace animation
             if (workspaceAnim != null) {
                 animation.play(workspaceAnim);
@@ -793,20 +821,15 @@ public class LauncherStateTransitionAnimation {
      * Zoom the camera out from the workspace to reveal 'toView'. Assumes that the view to show is
      * anchored at either the very top or very bottom of the screen.
      */
-    private void showAppsCustomizeHelper(final boolean animated, final boolean springLoaded) {
-        AppsCustomizePagedView.ContentType contentType =  mLauncher.getmAppsCustomizeContent().getContentType();
-        showAppsCustomizeHelper(animated, springLoaded, contentType);
+    public AnimatorSet showAppsCustomizeHelper(final boolean animated, final boolean springLoaded) {
+        AppsCustomizePagedView.ContentType contentType = mLauncher.getmAppsCustomizeContent().getContentType();
+        return showAppsCustomizeHelper(animated, springLoaded, contentType);
     }
 
-    private void showAppsCustomizeHelper(final boolean animated, final boolean springLoaded,
+    private AnimatorSet showAppsCustomizeHelper(final boolean animated, final boolean springLoaded,
                                          final AppsCustomizePagedView.ContentType contentType) {
-        final AnimatorSet mStateAnimation ;
-//        if (mStateAnimation != null) {
-//            mStateAnimation.setDuration(0);
-//            mStateAnimation.cancel();
-//            mStateAnimation = null;
-//        }
 
+        final AnimatorSet mStateAnimation = LauncherAnimUtils.createAnimatorSet();
         boolean material = Utilities.ATLEAST_LOLLIPOP;
 
         final Resources res = mLauncher.getResources();
@@ -820,23 +843,34 @@ public class LauncherStateTransitionAnimation {
         final View fromView = mLauncher.getWorkspace();
         final AppsCustomizeTabHost toView =  mLauncher.getmAppsCustomizeTabHost();
 
-        final ArrayList<View> layerViews = new ArrayList<View>();
+//        final ArrayList<View> layerViews = new ArrayList<View>();
+        final HashMap<View, Integer> layerViews = new HashMap<>();
 
-        Workspace.State workspaceState =
+        // If for some reason our views aren't initialized, don't animate
+        boolean initialized = mLauncher.getAllAppsButton() != null;
+
+        // Cancel the current animation
+        cancelAnimation();
+
+        Workspace.State toWorkspaceState =
                 contentType == AppsCustomizePagedView.ContentType.Widgets
                         ? Workspace.State.OVERVIEW_HIDDEN
                         : Workspace.State.NORMAL_HIDDEN;
-//        Animator   = mLauncher.getWorkspace().getChangeStateAnimation(workspaceState, animated, layerViews);
+        // Create the workspace animation.
+        // NOTE: this call apparently also sets the state for the workspace if !animated
+        Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
+                animated, layerViews);
+
+        //这个就是进入allapp界面时workspace上的google search bar 往上跑的动画
+        // Animate the search bar
+        startWorkspaceSearchBarAnimation(
+                toWorkspaceState, animated ? revealDuration : 0, mStateAnimation);
         if (!LauncherAppState.isDisableAllApps() || contentType == AppsCustomizePagedView.ContentType.Widgets) {
             // Set the content type for the all apps/widgets space
             mLauncher.getmAppsCustomizeTabHost().setContentTypeImmediate(contentType);
         }
 
-        // If for some reason our views aren't initialized, don't animate
-        boolean initialized = mLauncher.getAllAppsButton() != null;
-
         if (animated && initialized) {
-            mStateAnimation = LauncherAnimUtils.createAnimatorSet();
             final AppsCustomizePagedView content =
                     (AppsCustomizePagedView) toView.findViewById(R.id.apps_customize_pane_content);
 
@@ -882,7 +916,7 @@ public class LauncherStateTransitionAnimation {
             final float initAlpha = alpha;
 
             revealView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            layerViews.add(revealView);
+            layerViews.put(revealView, BUILD_AND_SET_LAYER);
             PropertyValuesHolder panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, 1f);
             PropertyValuesHolder panelDriftY = PropertyValuesHolder.ofFloat("translationY", yDrift, 0);
             PropertyValuesHolder panelDriftX = PropertyValuesHolder.ofFloat("translationX", xDrift, 0);
@@ -898,7 +932,7 @@ public class LauncherStateTransitionAnimation {
             if (page != null) {
                 page.setVisibility(View.VISIBLE);
                 page.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-                layerViews.add(page);
+                layerViews.put(page, BUILD_AND_SET_LAYER);
 
                 ObjectAnimator pageDrift = ObjectAnimator.ofFloat(page, "translationY", yDrift, 0);
                 page.setTranslationY(yDrift);
@@ -968,9 +1002,9 @@ public class LauncherStateTransitionAnimation {
 
             });
 
-//            if (workspaceAnim != null) {
-//                mStateAnimation.play(workspaceAnim);
-//            }
+            if (workspaceAnim != null) {
+                mStateAnimation.play(workspaceAnim);
+            }
 
             dispatchOnLauncherTransitionPrepare(fromView, animated, false);
             dispatchOnLauncherTransitionPrepare(toView, animated, false);
@@ -979,29 +1013,29 @@ public class LauncherStateTransitionAnimation {
                 public void run() {
                     // Check that mStateAnimation hasn't changed while
                     // we waited for a layout/draw pass
+
                     if (mStateAnimation != stateAnimation) return;
                     dispatchOnLauncherTransitionStart(fromView, animated, false);
                     dispatchOnLauncherTransitionStart(toView, animated, false);
 
                     revealView.setAlpha(initAlpha);
-                    if (Utilities.ATLEAST_LOLLIPOP) {
-                        for (int i = 0; i < layerViews.size(); i++) {
-                            View v = layerViews.get(i);
-                            if (v != null) {
-                                boolean attached = true;
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                    attached = v.isAttachedToWindow();
-                                }
-                                if (attached) v.buildLayer();
-                            }
+
+                    for (View v : layerViews.keySet()) {
+                        if (layerViews.get(v) == BUILD_AND_SET_LAYER) {
+                            v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                        }
+                        if (Utilities.ATLEAST_LOLLIPOP && Utilities.isViewAttachedToWindow(v)) {
+                            v.buildLayer();
                         }
                     }
+
                     mStateAnimation.start();
                 }
             };
             toView.bringToFront();
             toView.setVisibility(View.VISIBLE);
             toView.post(startAnimRunnable);
+            return mStateAnimation;
         } else {
             toView.setTranslationX(0.0f);
             toView.setTranslationY(0.0f);
@@ -1022,6 +1056,7 @@ public class LauncherStateTransitionAnimation {
             dispatchOnLauncherTransitionPrepare(toView, animated, false);
             dispatchOnLauncherTransitionStart(toView, animated, false);
             dispatchOnLauncherTransitionEnd(toView, animated, false);
+            return null;
         }
     }
 
@@ -1032,14 +1067,9 @@ public class LauncherStateTransitionAnimation {
      *
      * @param animated If true, the transition will be animated.
      */
-    private void hideAppsCustomizeHelper(Workspace.State toState, final boolean animated, final boolean springLoaded,
-                                         final Runnable onCompleteRunnable) {
-        final AnimatorSet mStateAnimation ;
-//        if (mStateAnimation != null) {
-//            mStateAnimation.setDuration(0);
-//            mStateAnimation.cancel();
-//            mStateAnimation = null;
-//        }
+    private AnimatorSet hideAppsCustomizeHelper(Workspace.State toState, final int toWorkspacePage,
+                                                final boolean animated, final Runnable onCompleteRunnable) {
+        final AnimatorSet mStateAnimation = LauncherAnimUtils.createAnimatorSet();
 
         boolean material = Utilities.ATLEAST_LOLLIPOP;
         Resources res = mLauncher.getResources();
@@ -1052,20 +1082,21 @@ public class LauncherStateTransitionAnimation {
         final float scaleFactor = (float) res.getInteger(R.integer.config_appsCustomizeZoomScaleFactor);
         final View fromView = mLauncher.getmAppsCustomizeTabHost();
         final View toView = mLauncher.getWorkspace();
-        Animator workspaceAnim = null;
-        final ArrayList<View> layerViews = new ArrayList<View>();
-//
-//        if (toState == Workspace.State.NORMAL) {
-//            workspaceAnim = mLauncher.getWorkspace().getChangeStateAnimation(toState, animated, layerViews);
-//        } else if (toState == Workspace.State.SPRING_LOADED || toState == Workspace.State.OVERVIEW) {
-//            workspaceAnim = mLauncher.getWorkspace().getChangeStateAnimation(toState, animated, layerViews);
-//        }
+//        Animator workspaceAnim = null;
+        final HashMap<View, Integer> layerViews = new HashMap<>();
 
+        // Cancel the current animation
+        cancelAnimation();
+
+        // Create the workspace animation.
+        // NOTE: this call apparently also sets the state for the workspace if !animated
+        Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toState,
+                toWorkspacePage, animated, layerViews);
         // If for some reason our views aren't initialized, don't animate
         boolean initialized = mLauncher.getAllAppsButton() != null;
 
         if (animated && initialized) {
-            mStateAnimation = LauncherAnimUtils.createAnimatorSet();
+//            mStateAnimation = LauncherAnimUtils.createAnimatorSet();
             if (workspaceAnim != null) {
                 mStateAnimation.play(workspaceAnim);
             }
@@ -1247,22 +1278,21 @@ public class LauncherStateTransitionAnimation {
                     dispatchOnLauncherTransitionStart(fromView, animated, false);
                     dispatchOnLauncherTransitionStart(toView, animated, false);
 
-                    if (Utilities.ATLEAST_LOLLIPOP) {
-                        for (int i = 0; i < layerViews.size(); i++) {
-                            View v = layerViews.get(i);
-                            if (v != null) {
-                                boolean attached = true;
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                    attached = v.isAttachedToWindow();
-                                }
-                                if (attached) v.buildLayer();
-                            }
+                    // Enable all necessary layers
+                    for (View v : layerViews.keySet()) {
+                        if (layerViews.get(v) == BUILD_AND_SET_LAYER) {
+                            v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                        }
+                        if (Utilities.ATLEAST_LOLLIPOP && Utilities.isViewAttachedToWindow(v)) {
+                            v.buildLayer();
                         }
                     }
                     mStateAnimation.start();
                 }
             };
             fromView.post(startAnimRunnable);
+
+            return mStateAnimation;
         } else {
             fromView.setVisibility(View.GONE);
             dispatchOnLauncherTransitionPrepare(fromView, animated, true);
@@ -1271,6 +1301,8 @@ public class LauncherStateTransitionAnimation {
             dispatchOnLauncherTransitionPrepare(toView, animated, true);
             dispatchOnLauncherTransitionStart(toView, animated, true);
             dispatchOnLauncherTransitionEnd(toView, animated, true);
+
+            return null;
         }
     }
     //=======================allapp=====================================

@@ -85,7 +85,6 @@
             android:visibility="invisible" />
 
         <include layout="@layout/all_apps"
-            android:background="@color/all_apps_bg"
             android:id="@+id/apps_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -3681,13 +3681,14 @@ Log.i("zhaoall","mstate:"+mState);
     }
 
     private void hideLAllapp() {
-        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 1f, 0f).setDuration(300).start();
-        mAppsCustomizeTabHost.setVisibility(View.INVISIBLE);
+//        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 1f, 0f).setDuration(300).start();
+//        mAppsCustomizeTabHost.setVisibility(View.INVISIBLE);
     }
 
     private void showLAllapp() {
-        mAppsCustomizeTabHost.setVisibility(View.VISIBLE);
-        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 0f, 1f).setDuration(300).start();
+//        mStateTransitionAnimation.showAppsCustomizeHelper(true,true);
+//        mAppsCustomizeTabHost.setVisibility(View.VISIBLE);
+//        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 0f, 1f).setDuration(300).start();
     }
 
     /**
@@ -3773,6 +3774,8 @@ Log.i("zhaoall","mstate:"+mState);
             return false;
         }
 
+        //这个判断语句就是进如allapp或者widget的界面的
+        //调用了LauncherStateTransitionAnimation这个类里封装好的方法
         if (toState == State.APPS) {
             mStateTransitionAnimation.startAnimationToAllApps(mWorkspace.getState(), animated,
                     focusSearchBar);
@@ -3797,12 +3800,13 @@ Log.i("zhaoall","mstate:"+mState);
     /**
      * Updates the workspace and interaction state on state change, and return the animation to this
      * new state.
+     * 在状态改变时更新workspace和交互状态位，并且为这个新状态返回相应的动画
      */
     public Animator startWorkspaceStateChangeAnimation(Workspace.State toState, int toPage,
             boolean animated, HashMap<View, Integer> layerViews) {
         Workspace.State fromState = mWorkspace.getState();
         Animator anim = mWorkspace.setStateWithAnimation(toState, toPage, animated, layerViews);
-        updateInteraction(fromState, toState);
+        updateInteraction(fromState, toState);//这个是个空方法，接口的实现方法里什么都没有写
         return anim;
     }
 

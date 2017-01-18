@@ -77,6 +77,7 @@ import com.android.launcher3.accessibility.OverviewScreenAccessibilityDelegate;
 import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.UserHandleCompat;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.LongArrayMap;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.util.WallpaperUtils;
@@ -2221,7 +2222,7 @@ public class Workspace extends PagedView
                 && toState.shouldUpdateWidget;
         // Update the current state
         mState = toState;
-        Log.i("zhao11state","setStateWithAnimation:"+mState);
+        Log.i(MyLogConfig.state,"setStateWithAnimation:"+mState);
         updateAccessibilityFlags();
 
         if (shouldNotifyWidgetChange) {

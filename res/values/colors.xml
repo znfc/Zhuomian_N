@@ -76,4 +76,9 @@
 
     <!--workspace-->
     <color name="workspace_screen_bg">#b3fbff04</color>
+
+    <!--L allapp-->
+    <color name="AppsCustomizeTabHost_bg">#a2ff04ea</color>
+    <color name="AppsCustomizeTabHost_content_bg">#bd49ff01</color>
+    <color name="AppsCustomizePagedView_bg">#55ff0000</color>
 </resources>
