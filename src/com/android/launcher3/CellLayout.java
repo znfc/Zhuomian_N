@@ -57,6 +57,7 @@ import com.android.launcher3.FolderIcon.FolderRingAnimator;
 import com.android.launcher3.accessibility.DragAndDropAccessibilityDelegate;
 import com.android.launcher3.accessibility.FolderAccessibilityHelper;
 import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.ParcelableSparseArray;
 import com.android.launcher3.util.Thunk;
 import com.mediatek.launcher3.LauncherLog;
@@ -202,7 +203,9 @@ public class CellLayout extends ViewGroup implements BubbleTextShadowHandler {
         mHeightGap = mOriginalHeightGap = 0;
         mMaxGap = Integer.MAX_VALUE;
         mCountX = (int) grid.inv.numColumns;
+        MyLogConfig.e(MyLogConfig.state,"mCountX:"+mCountX);
         mCountY = (int) grid.inv.numRows;
+        MyLogConfig.e(MyLogConfig.state,"mCountY:"+mCountY);
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];
         mPreviousReorderDirection[0] = INVALID_DIRECTION;
@@ -876,6 +879,7 @@ public class CellLayout extends ViewGroup implements BubbleTextShadowHandler {
         int childWidthSize = widthSize - (getPaddingLeft() + getPaddingRight());
         int childHeightSize = heightSize - (getPaddingTop() + getPaddingBottom());
         if (mFixedCellWidth < 0 || mFixedCellHeight < 0) {
+            MyLogConfig.e(MyLogConfig.state,"childWidthSize:"+childWidthSize+",mCountX:"+mCountX);
             int cw = DeviceProfile.calculateCellWidth(childWidthSize, mCountX);
             int ch = DeviceProfile.calculateCellHeight(childHeightSize, mCountY);
             if (cw != mCellWidth || ch != mCellHeight) {

@@ -33,6 +33,8 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.android.launcher3.config.MyLogConfig;
+
 public class DeviceProfile {
 
     public final InvariantDeviceProfile inv;
@@ -400,6 +402,7 @@ public class DeviceProfile {
     }
 
     public static int calculateCellWidth(int width, int countX) {
+        MyLogConfig.e(MyLogConfig.state,"width / countX:"+width / countX);
         return width / countX;
     }
     public static int calculateCellHeight(int height, int countY) {

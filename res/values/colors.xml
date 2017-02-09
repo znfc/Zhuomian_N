@@ -55,22 +55,22 @@
     <!--color debug -->
     <!--launcher-->
     <color name="launcherrootview_bg">#4d0050fc</color>
-    <color name="draglayer_bg">#5efc8600</color>
+    <color name="draglayer_bg">#43fc8600</color>
     <color name="focusIndicatorView_bg">#5e3f00fc</color>
     <color name="workspace_bg">#9700027e</color>
     <color name="hotseat_bg">#e770a702</color>
     <color name="overview_panel_bg">#ade43702</color>
     <color name="page_indicator_bg">#d204ffee</color>
     <color name="search_drop_target_bar_bg">#d2ac1400</color>
-    <color name="widgets_view_bg">#d236ff04</color>
 
     <!--allapp-->
-    <color name="all_apps_bg">#84ea04ff</color>
+    <color name="all_apps_bg">#b504b4ff</color><!--这个就是返回主界面后会出现的一个view 不会消失-->
     <color name="reveal_view_bg">#c82104ff</color>
     <color name="allAppsrecyclerviewcontainerview_bg">#c804ff71</color>
     <color name="allappsrecyclerview_bg">#c8abff04</color>
 
     <!--Widgets-->
+    <color name="widgets_view_bg">#d236ff04</color><!--这个就是返回主界面后会出现的一个view 长按界面后消失-->
     <color name="WidgetsContainerView_bg">#c5ff0460</color>
     <color name="WidgetsRecyclerView_bg">#c5042aff</color>
 

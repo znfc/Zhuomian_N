@@ -1106,8 +1106,14 @@ public class Launcher extends Activity
                 startTimeCallbacks = System.currentTimeMillis();
             }
 
+            if (mAppsCustomizeContent != null) {
+                mAppsCustomizeContent.setBulkBind(true);
+            }
             for (int i = 0; i < mBindOnResumeCallbacks.size(); i++) {
                 mBindOnResumeCallbacks.get(i).run();
+            }
+            if (mAppsCustomizeContent != null) {
+                mAppsCustomizeContent.setBulkBind(false);
             }
             mBindOnResumeCallbacks.clear();
             if (DEBUG_RESUME_TIME) {
@@ -1486,6 +1492,10 @@ public class Launcher extends Activity
         // Setup Apps and Widgets
         mAppsView = (AllAppsContainerView) findViewById(R.id.apps_view);
         mWidgetsView = (WidgetsContainerView) findViewById(R.id.widgets_view);
+        if(LauncherAppState.isLRAllApp()){
+            mAppsView.setVisibility(View.GONE);
+            mWidgetsView.setVisibility(View.GONE);
+        }
         if (mLauncherCallbacks != null && mLauncherCallbacks.getAllAppsSearchBarController() != null) {
             mAppsView.setSearchBarController(mLauncherCallbacks.getAllAppsSearchBarController());
         } else {
@@ -1570,6 +1580,7 @@ public class Launcher extends Activity
         mAppsCustomizeContent =
                 (AppsCustomizePagedView) mAppsCustomizeTabHost.findViewById(R.id.apps_customize_pane_content);
         mAppsCustomizeContent.setup(this, mDragController);
+
     }
 
     /**
@@ -1851,6 +1862,7 @@ public class Launcher extends Activity
         // you're in All Apps and click home to go to the workspace. onWindowVisibilityChanged
         // is a more appropriate event to handle
         if (mVisible) {
+            mAppsCustomizeTabHost.onWindowVisible();
             if (!mWorkspaceLoading) {
                 final ViewTreeObserver observer = mWorkspace.getViewTreeObserver();
                 // We want to let Launcher draw itself at least once before we force it to build
@@ -2847,7 +2859,7 @@ public class Launcher extends Activity
         if (LOGD) Log.d(TAG, "onClickAllAppsButton");
         if (!isAppsViewVisible()) {
             showAppsView(true /* animated */, false /* resetListToTop */,
-                    true /* updatePredictedApps */, false /* focusSearchBar */);
+                    true /* updatePredictedApps */, false /* focusSearchBar */);//有关
 
             if (LauncherLog.DEBUG) {
                 LauncherLog.d(TAG, "[All apps launch time][Start] onClickAllAppsButton.");
@@ -3060,8 +3072,7 @@ public class Launcher extends Activity
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onClickSettingsButton(v);
         } else {
-            showLAllapp();
-//            startActivity(new Intent(this, SettingsActivity.class));
+            startActivity(new Intent(this, SettingsActivity.class));
         }
     }
 
@@ -3607,6 +3618,11 @@ public class Launcher extends Activity
             // This clears all widget bitmaps from the widget tray
             // TODO(hyunyoungs)
         }
+
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+            mAppsCustomizeTabHost.onTrimMemory();
+        }
+
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onTrimMemory(level);
         }
@@ -3676,19 +3692,7 @@ Log.i("zhaoall","mstate:"+mState);
                     .sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
         LauncherHelper.endSection();
-        hideLAllapp();
         return changed;
-    }
-
-    private void hideLAllapp() {
-//        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 1f, 0f).setDuration(300).start();
-//        mAppsCustomizeTabHost.setVisibility(View.INVISIBLE);
-    }
-
-    private void showLAllapp() {
-//        mStateTransitionAnimation.showAppsCustomizeHelper(true,true);
-//        mAppsCustomizeTabHost.setVisibility(View.VISIBLE);
-//        ObjectAnimator.ofFloat(mAppsCustomizeTabHost, "Alpha", 0f, 1f).setDuration(300).start();
     }
 
     /**
@@ -3737,7 +3741,7 @@ Log.i("zhaoall","mstate:"+mState);
         if (updatePredictedApps) {
             tryAndUpdatePredictedApps();
         }
-        showAppsOrWidgets(State.APPS, animated, focusSearchBar);
+        showAppsOrWidgets(State.APPS, animated, focusSearchBar);//有关
     }
 
     /**
@@ -3778,7 +3782,7 @@ Log.i("zhaoall","mstate:"+mState);
         //调用了LauncherStateTransitionAnimation这个类里封装好的方法
         if (toState == State.APPS) {
             mStateTransitionAnimation.startAnimationToAllApps(mWorkspace.getState(), animated,
-                    focusSearchBar);
+                    focusSearchBar);//有关
         } else {
             mStateTransitionAnimation.startAnimationToWidgets(mWorkspace.getState(), animated);
         }
@@ -3865,9 +3869,6 @@ Log.i("zhaoall","mstate:"+mState);
         }
     }
 
-    //===============================================allapp=========================================
-
-    //===============================================allapp=========================================
     /**
      * Updates the set of predicted apps if it hasn't been updated since the last time Launcher was
      * resumed.

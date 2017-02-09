@@ -204,4 +204,9 @@ public class LauncherAppState {
     public static boolean isDogfoodBuild() {
         return FeatureFlags.IS_ALPHA_BUILD || FeatureFlags.IS_DEV_BUILD;
     }
+
+    public static boolean isLRAllApp(){
+        return true;
+//        return false;
+    }
 }

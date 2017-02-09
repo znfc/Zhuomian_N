@@ -655,10 +655,10 @@ public class WidgetPreviewLoader {
                 // which would gets re-written next time.
                 mVersions = getPackageVersion(mKey.componentName.getPackageName());
 
-//                Launcher launcher = (Launcher) mCaller.getContext();
+                Launcher launcher = (Launcher) mCaller.getContext();
 
                 // it's not in the db... we need to generate it
-//                preview = generatePreview(launcher, mInfo, unusedBitmap, mPreviewWidth, mPreviewHeight);
+                preview = generatePreview(launcher, mInfo, unusedBitmap, mPreviewWidth, mPreviewHeight);
             }
             return preview;
         }

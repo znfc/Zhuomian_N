@@ -55,6 +55,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.Interpolator;
 
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.util.LauncherEdgeEffect;
 import com.android.launcher3.util.Thunk;
 
@@ -89,7 +90,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     private static final float RETURN_TO_ORIGINAL_PAGE_THRESHOLD = 0.33f;
     // The page is moved more than halfway, automatically move to the next page on touch up.
-    private static final float SIGNIFICANT_MOVE_THRESHOLD = 0.4f;
+    private static final float SIGNIFICANT_MOVE_THRESHOLD = 0.04f;//这个值越小翻页滑动灵敏度越高
 
     private static final float MAX_SCROLL_PROGRESS = 1.0f;
 
@@ -2446,12 +2447,12 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                     if ((i != page) && immediateAndOnly) {
                         continue;
                     }
-                    if (lowerPageBound <= i && i <= upperPageBound) {
-                        if (mDirtyPageContent.get(i)) {
-                            syncPageItems(i, (i == page) && immediateAndOnly);
-                            mDirtyPageContent.set(i, false);
-                        }
-                    }
+//                    if (lowerPageBound <= i && i <= upperPageBound) {
+//                        if (mDirtyPageContent.get(i)) {
+//                            syncPageItems(i, (i == page) && immediateAndOnly);
+//                            mDirtyPageContent.set(i, false);
+//                        }
+//                    }
                 }
             }
         }
@@ -2486,10 +2487,12 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         invalidatePageData(currentPage, false);
     }
     protected void invalidatePageData(int currentPage, boolean immediateAndOnly) {
+        MyLogConfig.e(MyLogConfig.state,"invalidatePageData mIsDataReady:"+mIsDataReady);
         if (!mIsDataReady) {
             return;
         }
 
+        MyLogConfig.e(MyLogConfig.state,"mContentIsRefreshable mIsDataReady:"+mContentIsRefreshable);
         if (mContentIsRefreshable) {
             // Force all scrolling-related behavior to end
             forceFinishScroller();

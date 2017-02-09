@@ -25,10 +25,8 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
@@ -38,7 +36,6 @@ import com.android.launcher3.util.UiThreadCircularReveal;
 import com.android.launcher3.util.Thunk;
 import com.android.launcher3.widget.WidgetsContainerView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -154,15 +151,20 @@ public class LauncherStateTransitionAnimation {
             @Override
             void onTransitionComplete() {
                 if (startSearchAfterTransition) {
-//                    toView.startAppsSearch();
+                    toView.startAppsSearch();
                 }
             }
         };
-        // Only animate the search bar if animating from spring loaded mode back to all apps
-//        mCurrentAnimation = startAnimationToOverlay(fromWorkspaceState,
-//                Workspace.State.NORMAL_HIDDEN, buttonView, toView, animated, cb);
-        mCurrentAnimation =  showAppsCustomizeHelper(true, true);
-        //修改的地方
+
+        if(LauncherAppState.isLRAllApp()){
+            mCurrentAnimation = showAppsCustomizeHelper(true, true);
+            //修改的地方
+        }else {
+            // Only animate the search bar if animating from spring loaded mode back to all apps
+            mCurrentAnimation = startAnimationToOverlay(fromWorkspaceState,
+                    Workspace.State.NORMAL_HIDDEN, buttonView, toView, animated, cb);
+        }
+
     }
 
     /**
@@ -191,9 +193,13 @@ public class LauncherStateTransitionAnimation {
         }
 
         if (fromState == Launcher.State.APPS || fromState == Launcher.State.APPS_SPRING_LOADED) {
+            MyLogConfig.e(MyLogConfig.state,"LauncherStateTransitionAnimation startAnimationToWorkspace");
             startAnimationToWorkspaceFromAllApps(fromWorkspaceState, toWorkspaceState, toWorkspacePage,
                     animated, onCompleteRunnable);
         } else {
+            //从桌面上长按时走的这个方法 fromState:WORKSPACE fromWorkspaceState:NORMAL,toWorkspaceState:OVERVIEW
+            MyLogConfig.e(MyLogConfig.state,"fromState:"+fromState+"，fromWorkspaceState:"+fromWorkspaceState+",toWorkspaceState:"+toWorkspaceState);
+
             startAnimationToWorkspaceFromWidgets(fromWorkspaceState, toWorkspaceState, toWorkspacePage,
                     animated, onCompleteRunnable);
         }
@@ -476,19 +482,31 @@ public class LauncherStateTransitionAnimation {
                 };
             }
         };
-        // Only animate the search bar if animating to spring loaded mode from all apps
-//        mCurrentAnimation = startAnimationToWorkspaceFromOverlay(fromWorkspaceState, toWorkspaceState,
-//                toWorkspacePage, mLauncher.getAllAppsButton(), appsView,
-//                animated, onCompleteRunnable, cb);
-        mCurrentAnimation = hideAppsCustomizeHelper(toWorkspaceState,toWorkspacePage,animated ,onCompleteRunnable);
+
+        if(LauncherAppState.isLRAllApp()){
+            mCurrentAnimation = hideAppsCustomizeHelper(toWorkspaceState,toWorkspacePage,animated ,onCompleteRunnable);
+        } else {
+            // Only animate the search bar if animating to spring loaded mode from all apps
+            mCurrentAnimation = startAnimationToWorkspaceFromOverlay(fromWorkspaceState, toWorkspaceState,
+                    toWorkspacePage, mLauncher.getAllAppsButton(), appsView,
+                    animated, onCompleteRunnable, cb);
+        }
     }
 
     /**
+     * 这个方法是从任意状态到显示workspace状态时会调用的方法，目前知道的有以下三个状态转换会调用
+     * 显示workspace界面有三个状态 NORMAL OVERVIEW SPRING_LOADED只要到这三个状态的任意一个状态都要调用这个方法
+     * 1.从workspace到overview界面会调用，fromWorkspaceState:NORMAL,toWorkspaceState:OVERVIEW
+     * 2.从widget拖动item到桌面上，fromWorkspaceState:OVERVIEW_HIDDEN,toWorkspaceState:SPRING_LOADED
+     * 3.添加widget成功后桌面从SPRING_LOADED到NORMAL fromWorkspaceState:SPRING_LOADED,toWorkspaceState:NORMAL
      * Starts and animation to the workspace from the widgets view.
      */
     private void startAnimationToWorkspaceFromWidgets(final Workspace.State fromWorkspaceState,
             final Workspace.State toWorkspaceState, final int toWorkspacePage,
             final boolean animated, final Runnable onCompleteRunnable) {
+        MyLogConfig.e(MyLogConfig.state,"33333333fromWorkspaceState:"+fromWorkspaceState+
+                ",toWorkspaceState:"+toWorkspaceState+",toWorkspacePage:"+toWorkspacePage);
+
         final WidgetsContainerView widgetsView = mLauncher.getWidgetsView();
         PrivateTransitionCallbacks cb =
                 new PrivateTransitionCallbacks(FINAL_REVEAL_ALPHA_FOR_WIDGETS) {
@@ -511,6 +529,10 @@ public class LauncherStateTransitionAnimation {
 
     /**
      * Creates and starts a new animation to the workspace.
+     * 这个方法是到
+     * 从workspace到overview界面会调用，fromWorkspaceState:NORMAL,toWorkspaceState:OVERVIEW
+     * 从widget拖动item到桌面上，fromWorkspaceState:OVERVIEW_HIDDEN,toWorkspaceState:SPRING_LOADED
+     * 添加widget成功后桌面从SPRING_LOADED到NORMAL fromWorkspaceState:SPRING_LOADED,toWorkspaceState:NORMAL
      * 这个方法就是从allapp界面或者widget界面到workspace界面的
      */
     private AnimatorSet startAnimationToWorkspaceFromOverlay(
@@ -519,7 +541,7 @@ public class LauncherStateTransitionAnimation {
             final View buttonView, final BaseContainerView fromView,
             final boolean animated, final Runnable onCompleteRunnable,
             final PrivateTransitionCallbacks pCb) {
-        Log.i(MyLogConfig.state,"startAnimationToWorkspaceFromOverlay:");
+        MyLogConfig.e(MyLogConfig.state, "startAnimationToWorkspaceFromOverlay:");
         if(MyLogConfig.noThorwErr) throw new RuntimeException("11111111111111111111");
         final AnimatorSet animation = LauncherAnimUtils.createAnimatorSet();
         final Resources res = mLauncher.getResources();
@@ -549,7 +571,7 @@ public class LauncherStateTransitionAnimation {
 
         Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView);
 
-        if (!animated && initialized) {
+        if (animated && initialized) {
             // Play the workspace animation
             if (workspaceAnim != null) {
                 animation.play(workspaceAnim);
@@ -823,12 +845,12 @@ public class LauncherStateTransitionAnimation {
      */
     public AnimatorSet showAppsCustomizeHelper(final boolean animated, final boolean springLoaded) {
         AppsCustomizePagedView.ContentType contentType = mLauncher.getmAppsCustomizeContent().getContentType();
+        MyLogConfig.e(MyLogConfig.state,"Launcher state:"+mLauncher.mState);
         return showAppsCustomizeHelper(animated, springLoaded, contentType);
     }
 
     private AnimatorSet showAppsCustomizeHelper(final boolean animated, final boolean springLoaded,
                                          final AppsCustomizePagedView.ContentType contentType) {
-
         final AnimatorSet mStateAnimation = LauncherAnimUtils.createAnimatorSet();
         boolean material = Utilities.ATLEAST_LOLLIPOP;
 
@@ -842,8 +864,7 @@ public class LauncherStateTransitionAnimation {
         final float scale = (float) res.getInteger(R.integer.config_appsCustomizeZoomScaleFactor);
         final View fromView = mLauncher.getWorkspace();
         final AppsCustomizeTabHost toView =  mLauncher.getmAppsCustomizeTabHost();
-
-//        final ArrayList<View> layerViews = new ArrayList<View>();
+        //toView:com.android.launcher3.AppsCustomizeTabHost
         final HashMap<View, Integer> layerViews = new HashMap<>();
 
         // If for some reason our views aren't initialized, don't animate
@@ -874,7 +895,9 @@ public class LauncherStateTransitionAnimation {
             final AppsCustomizePagedView content =
                     (AppsCustomizePagedView) toView.findViewById(R.id.apps_customize_pane_content);
 
-            final View page = content.getPageAt(content.getCurrentPage());
+            int temp_page=content.getCurrentPage();
+            MyLogConfig.e(MyLogConfig.state,"temp_page:"+temp_page);
+            final View page = content.getPageAt(temp_page);
             final View revealView = toView.findViewById(R.id.fake_page);
 
             final float initialPanelAlpha = 1f;
@@ -929,7 +952,7 @@ public class LauncherStateTransitionAnimation {
 
             mStateAnimation.play(panelAlphaAndDrift);
 
-            if (page != null) {
+            if (page != null) {//第一次page为空
                 page.setVisibility(View.VISIBLE);
                 page.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                 layerViews.put(page, BUILD_AND_SET_LAYER);
@@ -960,7 +983,7 @@ public class LauncherStateTransitionAnimation {
                 int allAppsButtonSize =mLauncher.getDeviceProfile().allAppsButtonVisualSize;
                 float startRadius = isWidgetTray ? 0 : allAppsButtonSize / 2;
                 Animator reveal =
-                        ViewAnimationUtils.createCircularReveal(revealView, width / 2, height / 2, startRadius,
+                        UiThreadCircularReveal.createCircularReveal(revealView, width / 2, height / 2, startRadius,
                                 revealRadius);
                 reveal.setDuration(revealDuration);
                 reveal.setInterpolator(new LogDecelerateInterpolator(100, 0));
@@ -1033,7 +1056,9 @@ public class LauncherStateTransitionAnimation {
                 }
             };
             toView.bringToFront();
-            toView.setVisibility(View.VISIBLE);
+            toView.setVisibility(View.VISIBLE);//问题在这里
+            //toView com.android.launcher3.AppsCustomizeTabHost{60c4c0f V.E...... ......ID 0,0-720,1280 #7f110033 app:id/apps_customize_pane}
+//            MyLogConfig.e(MyLogConfig.state,"toView:"+toView);
             toView.post(startAnimRunnable);
             return mStateAnimation;
         } else {

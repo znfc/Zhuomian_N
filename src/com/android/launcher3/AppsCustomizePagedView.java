@@ -51,6 +51,7 @@ import android.widget.Toast;
 
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
+import com.android.launcher3.config.MyLogConfig;
 import com.android.launcher3.model.WidgetsModel;
 import com.android.launcher3.widget.PendingAddShortcutInfo;
 import com.android.launcher3.widget.PendingAddWidgetInfo;
@@ -345,11 +346,14 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         mSaveInstanceStateItemIndex = index;
     }
 
+    int i=0;
     private void updatePageCounts() {
         mNumWidgetPages = (int) Math.ceil(mWidgets.size() /
                 (float) (mWidgetCountX * mWidgetCountY));
         mNumAppsPages = (int) Math.ceil((float) mApps.size() / (mCellCountX * mCellCountY));
-        Log.i(TAGzhao,"updatePageCounts();mNumAppsPages:"+mNumAppsPages);
+        MyLogConfig.e(MyLogConfig.state,"updatePageCounts();mNumAppsPages:"+mNumAppsPages);
+//        if(i==1) throw new RuntimeException("7777777777");
+        i++;
     }
 
     protected void onDataReady(int width, int height) {
@@ -376,8 +380,12 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
+        MyLogConfig.e(MyLogConfig.state,"mIsDataReady isDataReady():"+isDataReady());
         if (!isDataReady()) {
-            if ((LauncherAppState.isDisableAllApps() || !mApps.isEmpty()) && !mWidgets.isEmpty()) {
+            MyLogConfig.e(MyLogConfig.state, "mIsDataReady isDataReady():" + isDataReady());
+
+            if ((LauncherAppState.isDisableAllApps() || (!mApps.isEmpty()) && !mWidgets.isEmpty())) {
+                MyLogConfig.e(MyLogConfig.state,"mIsDataReady 进来了");
                 post(new Runnable() {
                     // This code triggers requestLayout so must be posted outside of the
                     // layout pass.
@@ -386,6 +394,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                             attached = isAttachedToWindow();
                         }
+                        MyLogConfig.e(MyLogConfig.state,"mIsDataReady attached:"+attached);
                         if (attached) {
                             setDataIsReady();
                             onDataReady(getMeasuredWidth(), getMeasuredHeight());
@@ -450,7 +459,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     private void updatePageCountsAndInvalidateData() {
 
-        Log.i(TAGzhao,"updatePageCountsAndInvalidateData：mInBulkBind："+mInBulkBind);//false
+        MyLogConfig.e(MyLogConfig.state,"updatePageCountsAndInvalidateData：mInBulkBind："+mInBulkBind);//false
         if (mInBulkBind) {
             mNeedToUpdatePageCountsAndInvalidateData = true;
         } else {
@@ -1298,9 +1307,12 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         Context context = getContext();
         if (mContentType == ContentType.Applications) {
+            MyLogConfig.e(MyLogConfig.state,"mNumAppsPages:"+mNumAppsPages);
+
             for (int i = 0; i < mNumAppsPages; ++i) {
                 AppsCustomizeCellLayout layout = new AppsCustomizeCellLayout(context);
                 setupPage(layout);
+                MyLogConfig.e(MyLogConfig.state,"addView===#########=====addView");
                 addView(layout, new PagedView.LayoutParams(LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT));
             }
@@ -1336,6 +1348,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     @Override
     protected int indexToPage(int index) {
+        MyLogConfig.e(MyLogConfig.state,"getChildCount():"+getChildCount());
         return getChildCount() - index - 1;
     }
 
@@ -1427,16 +1440,17 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
      * next onMeasure() pass, which will trigger an invalidatePageData() itself.
      */
     private void invalidateOnDataChange() {
-        Log.i(TAGzhao,"invalidateOnDataChange:isDataReady():"+isDataReady());
-        if (!isDataReady()) {
+        MyLogConfig.e(MyLogConfig.state,"AppsCustomizePagedView,invalidateOnDataChange:isDataReady():"+isDataReady());
+        if (isDataReady()) {
             // The next layout pass will trigger data-ready if both widgets and apps are set, so
             // request a layout to trigger the page data when ready.
             requestLayout();
-        } else {
             syncPages();
             for (int i = 0 ; i< mNumAppsPages;i++){
                 syncAppsPageItems(i,false);
             }
+        } else {
+
             cancelAllTasks();
             invalidatePageData();
         }
