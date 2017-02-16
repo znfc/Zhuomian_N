@@ -97,6 +97,13 @@ public class LauncherAppState {
         // Register intent receivers
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+        //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
+        if(sContext.getResources().getBoolean(R.bool.support_calendar_icon)){
+            filter.addAction(Intent.ACTION_TIME_CHANGED);
+            filter.addAction(Intent.ACTION_DATE_CHANGED);
+            filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        }
+        //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
         filter.addAction(SearchManager.INTENT_GLOBAL_SEARCH_ACTIVITY_CHANGED);
         // For handling managed profiles
         filter.addAction(LauncherAppsCompat.ACTION_MANAGED_PROFILE_ADDED);
