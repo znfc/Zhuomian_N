@@ -1117,6 +1117,10 @@ public class LauncherStateTransitionAnimation {
         // NOTE: this call apparently also sets the state for the workspace if !animated
         Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toState,
                 toWorkspacePage, animated, layerViews);
+        // Animate the search bar
+        startWorkspaceSearchBarAnimation(
+                toState, animated ? revealDuration : 0, mStateAnimation);
+
         // If for some reason our views aren't initialized, don't animate
         boolean initialized = mLauncher.getAllAppsButton() != null;
 

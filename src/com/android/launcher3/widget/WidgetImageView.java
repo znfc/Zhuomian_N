@@ -24,12 +24,13 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ImageView;
 
 /**
  * View that draws a bitmap horizontally centered. If the image width is greater than the view
  * width, the image is scaled down appropriately.
  */
-public class WidgetImageView extends View {
+public class WidgetImageView extends ImageView {
 
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
     private final RectF mDstRectF = new RectF();

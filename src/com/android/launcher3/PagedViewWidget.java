@@ -31,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.launcher3.compat.AppWidgetManagerCompat;
+import com.android.launcher3.widget.WidgetImageView;
 
 /**
  * The linear layout used strictly for the widget/wallpaper tab of the customization tray
@@ -162,10 +163,10 @@ public class PagedViewWidget extends LinearLayout {
     }
 
     void applyPreview(FastBitmapDrawable preview, int index) {
-        final PagedViewWidgetImageView image =
-            (PagedViewWidgetImageView) findViewById(R.id.widget_preview);
+        final WidgetImageView image =
+            (WidgetImageView) findViewById(R.id.widget_preview);
         if (preview != null) {
-            image.mAllowRequestLayout = false;
+//            image.mAllowRequestLayout = false;
             image.setImageDrawable(preview);
             if (mIsAppWidget) {
                 // center horizontally
@@ -177,7 +178,7 @@ public class PagedViewWidget extends LinearLayout {
                         mOriginalImagePadding.bottom);
             }
             image.setAlpha(1f);
-            image.mAllowRequestLayout = true;
+//            image.mAllowRequestLayout = true;
         }
     }
 

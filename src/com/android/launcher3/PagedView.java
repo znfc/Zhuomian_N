@@ -2447,12 +2447,12 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                     if ((i != page) && immediateAndOnly) {
                         continue;
                     }
-//                    if (lowerPageBound <= i && i <= upperPageBound) {
-//                        if (mDirtyPageContent.get(i)) {
-//                            syncPageItems(i, (i == page) && immediateAndOnly);
-//                            mDirtyPageContent.set(i, false);
-//                        }
-//                    }
+                    if (lowerPageBound <= i && i <= upperPageBound) {
+                        if (mDirtyPageContent.get(i)) {
+                            syncPageItems(i, (i == page) && immediateAndOnly);
+                            mDirtyPageContent.set(i, false);
+                        }
+                    }
                 }
             }
         }

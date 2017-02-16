@@ -2078,6 +2078,11 @@ public class Launcher extends Activity
                 mAppsView.scrollToTop();
             }
 
+            // Reset the apps customize page
+            if (!alreadyOnHome && mAppsCustomizeTabHost != null) {
+                mAppsCustomizeTabHost.reset();
+            }
+
             // Reset the widgets view
             if (!alreadyOnHome && mWidgetsView != null) {
                 mWidgetsView.scrollToTop();
@@ -4237,6 +4242,10 @@ Log.i("zhaoall","mstate:"+mState);
         if (addedApps != null && mAppsView != null) {
             mAppsView.addApps(addedApps);
         }
+
+        if (addedApps != null && mAppsCustomizeContent != null) {
+            mAppsCustomizeContent.addApps(addedApps);
+        }
     }
 
     /**
@@ -4749,6 +4758,7 @@ Log.i("zhaoall","mstate:"+mState);
                 }
                 mAppsView.updateApps(apps);
          }
+        mAppsCustomizeContent.updateApps(apps);
 
     }
 
@@ -4860,6 +4870,11 @@ Log.i("zhaoall","mstate:"+mState);
         // Update AllApps
         if (mAppsView != null) {
             mAppsView.removeApps(appInfos);
+        }
+
+        // Update LAllApps
+        if(mAppsCustomizeContent != null) {
+            mAppsCustomizeContent.removeApps(appInfos);
         }
     }
 

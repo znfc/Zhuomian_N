@@ -96,7 +96,7 @@ public class DeviceProfile {
     private int hotseatBarHeightPx; // One of the above.
 
     // All apps
-    public int allAppsNumRows = 6;
+    public int allAppsNumRows = 5;
     public int allAppsNumCols = 4;
     public int allAppsNumPredictiveCols;
     public int allAppsButtonVisualSize;
@@ -594,8 +594,9 @@ public class DeviceProfile {
                 padding.right += pagedFixedViewPadding;
 
                 pagedView.setPadding(padding.left, padding.top, padding.right, padding.bottom);
-                fakePageContainer.setPadding(padding.left, padding.top, padding.right, padding.bottom);
-
+                fakePageContainer.setPadding(padding.left, padding.top, padding.right, 0);
+                //padding.left:0, padding.top:0, padding.right:0, padding.bottom:11
+MyLogConfig.e(MyLogConfig.state,"padding.left:"+padding.left+", padding.top:"+padding.top+", padding.right:"+padding.right+", padding.bottom:"+padding.bottom);
             }
         }
 

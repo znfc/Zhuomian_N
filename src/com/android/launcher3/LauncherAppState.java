@@ -130,8 +130,9 @@ public class LauncherAppState {
             }
         }, filter1);
     }
+    //是否使allapps作废
     public static boolean isDisableAllApps(){
-        return true;
+        return false;
     }
     /**
      * Call from Application.onTerminate(), which is not guaranteed to ever be called.

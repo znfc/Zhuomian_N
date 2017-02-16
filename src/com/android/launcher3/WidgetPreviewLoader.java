@@ -70,6 +70,9 @@ public class WidgetPreviewLoader {
     private final Context mContext;
     private final IconCache mIconCache;
     private final UserManagerCompat mUserManager;
+    private int mPreviewBitmapWidth;
+    private int mPreviewBitmapHeight;
+    private PagedViewCellLayout mWidgetSpacingLayout;
     private final AppWidgetManagerCompat mWidgetManager;
     private final CacheDb mDb;
     private final int mProfileBadgeMargin;
@@ -351,6 +354,16 @@ public class WidgetPreviewLoader {
             return generateShortcutPreview(launcher,
                     (ResolveInfo) info, previewWidth, previewHeight, recycle);
         }
+    }
+
+    public int maxWidthForWidgetPreview(int spanX) {
+        return Math.min(mPreviewBitmapWidth,
+                mWidgetSpacingLayout.estimateCellWidth(spanX));
+    }
+
+    public int maxHeightForWidgetPreview(int spanY) {
+        return Math.min(mPreviewBitmapHeight,
+                mWidgetSpacingLayout.estimateCellHeight(spanY));
     }
 
     /**
