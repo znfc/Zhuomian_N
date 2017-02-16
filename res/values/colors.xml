@@ -81,4 +81,7 @@
     <color name="AppsCustomizeTabHost_bg">#a2ff04ea</color>
     <color name="AppsCustomizeTabHost_content_bg">#bd49ff01</color>
     <color name="AppsCustomizePagedView_bg">#55ff0000</color>
+
+    <!--SearchDropTargetBar-->
+    <color name="SearchDropTargetBar_bg">#d2ac1400</color>
 </resources>

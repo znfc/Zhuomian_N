@@ -1001,9 +1001,9 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
             AppInfo info = mApps.get(i);
             BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
                     R.layout.apps_customize_application, layout, false);
-            if(!LauncherAppState.isLAllappWhiteBG()) {
-                icon.setTextColor(getContext().getResources().getColor(R.color.workspace_icon_text_color));
-            }
+//            if(!LauncherAppState.isLAllappWhiteBG()) {
+//                icon.setTextColor(getContext().getResources().getColor(R.color.workspace_icon_text_color));
+//            }
             icon.applyFromApplicationInfo(info);
             icon.setOnClickListener(mLauncher);
             icon.setOnLongClickListener(this);
