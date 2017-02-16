@@ -1298,6 +1298,9 @@ public class Launcher extends Activity
         }
         //TODO(hyunyoungs): stop the widgets loader when there is a rotation.
 
+        if (mAppsCustomizeContent != null) {
+            mAppsCustomizeContent.surrender();
+        }
         return Boolean.TRUE;
     }
 
@@ -1447,6 +1450,19 @@ public class Launcher extends Activity
             setWaitingForResult(true);
             mRestoring = true;
         }
+
+        // Restore the AppsCustomize tab
+        if (mAppsCustomizeTabHost != null) {
+            String curTab = savedState.getString("apps_customize_currentTab");
+            if (curTab != null) {
+                mAppsCustomizeTabHost.setContentTypeImmediate(mAppsCustomizeTabHost.getContentTypeForTabTag(curTab));
+                mAppsCustomizeContent.loadAssociatedPages(mAppsCustomizeContent.getCurrentPage());
+            }
+
+            int currentIndex = savedState.getInt("apps_customize_currentIndex");
+            mAppsCustomizeContent.restorePageForIndex(currentIndex);
+        }
+//        mItemIdToViewId = (HashMap<Integer, Integer>) savedState.getSerializable(RUNTIME_STATE_VIEW_IDS);
     }
 
     /**
@@ -2173,6 +2189,17 @@ public class Launcher extends Activity
             outState.putInt(RUNTIME_STATE_PENDING_ADD_WIDGET_ID, mPendingAddWidgetId);
         }
 
+
+        // Save the current AppsCustomize tab
+        if (mAppsCustomizeTabHost != null) {
+            AppsCustomizePagedView.ContentType type = mAppsCustomizeContent.getContentType();
+            String currentTabTag = mAppsCustomizeTabHost.getTabTagForContentType(type);
+            if (currentTabTag != null) {
+                outState.putString("apps_customize_currentTab", currentTabTag);
+            }
+            int currentIndex = mAppsCustomizeContent.getSaveInstanceStateIndex();
+            outState.putInt("apps_customize_currentIndex", currentIndex);
+        }
         // Save the current widgets tray?
         // TODO(hyunyoungs)
 
@@ -4705,7 +4732,6 @@ Log.i("zhaoall","mstate:"+mState);
             if (mAppsCustomizeContent != null) {
                 Log.i(MyLogConfig.ALLAPP,"添加数据apps:"+apps.size());
                 mAppsCustomizeContent.setApps(apps);
-//                mAppsCustomizeContent.onPackagesUpdated(LauncherModel.getSortedWidgetsAndShortcuts(this));
             }
         }
         if (mLauncherCallbacks != null) {
@@ -5138,7 +5164,6 @@ Log.i("zhaoall","mstate:"+mState);
         if (mPageIndicators != null) mPageIndicators.setAlpha(0f);
         if (mSearchDropTargetBar != null) mSearchDropTargetBar.animateToState(
                 SearchDropTargetBar.State.INVISIBLE, 0);
-        mAppsCustomizeTabHost.setVisibility(View.VISIBLE);
     }
 
     // TODO: These method should be a part of LauncherSearchCallback
@@ -5228,6 +5253,9 @@ Log.i("zhaoall","mstate:"+mState);
         mModel.dumpState();
         // TODO(hyunyoungs): add mWidgetsView.dumpState(); or mWidgetsModel.dumpState();
 
+        if (mAppsCustomizeContent != null) {
+            mAppsCustomizeContent.dumpState();
+        }
         Log.d(TAG, "END launcher3 dump state");
     }
 
