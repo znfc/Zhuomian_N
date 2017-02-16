@@ -584,7 +584,11 @@ public class DeviceProfile {
                 padding.bottom = Math.max(0, pageIndicatorHeight - paddingTB);
 
                 pagedView.setWidgetsPageIndicatorPadding(pageIndicatorHeight);
-                fakePage.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                if (LauncherAppState.isLAllappWhiteBG()) {
+                    fakePage.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                }else {
+                    fakePage.setBackground(null);
+                }
 
                 // Horizontal padding for the whole paged view
                 int pagedFixedViewPadding =
@@ -596,7 +600,6 @@ public class DeviceProfile {
                 pagedView.setPadding(padding.left, padding.top, padding.right, padding.bottom);
                 fakePageContainer.setPadding(padding.left, padding.top, padding.right, 0);
                 //padding.left:0, padding.top:0, padding.right:0, padding.bottom:11
-MyLogConfig.e(MyLogConfig.state,"padding.left:"+padding.left+", padding.top:"+padding.top+", padding.right:"+padding.right+", padding.bottom:"+padding.bottom);
             }
         }
 

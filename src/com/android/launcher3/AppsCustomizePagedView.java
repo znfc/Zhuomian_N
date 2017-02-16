@@ -960,8 +960,12 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         Drawable bg = getContext().getResources().getDrawable(R.drawable.quantum_panel);
         if (bg != null) {
-            bg.setAlpha(mPageBackgroundsVisible ? 255: 0);
-            layout.setBackground(bg);
+            bg.setAlpha(mPageBackgroundsVisible ? 255 : 0);
+            if(LauncherAppState.isLAllappWhiteBG()){
+                layout.setBackground(bg);
+            }else {
+                layout.setBackground(null);
+            }
         }
 
         //有三个childView
@@ -997,6 +1001,9 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
             AppInfo info = mApps.get(i);
             BubbleTextView icon = (BubbleTextView) mLayoutInflater.inflate(
                     R.layout.apps_customize_application, layout, false);
+            if(!LauncherAppState.isLAllappWhiteBG()) {
+                icon.setTextColor(getContext().getResources().getColor(R.color.workspace_icon_text_color));
+            }
             icon.applyFromApplicationInfo(info);
             icon.setOnClickListener(mLauncher);
             icon.setOnLongClickListener(this);
@@ -1363,7 +1370,6 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     @Override
     protected int indexToPage(int index) {
-        MyLogConfig.e(MyLogConfig.state, "getChildCount():"+getChildCount());
         return getChildCount() - index - 1;
     }
 

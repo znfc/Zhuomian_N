@@ -226,7 +226,7 @@ public class LauncherStateTransitionAnimation {
         final AnimatorSet animation = LauncherAnimUtils.createAnimatorSet();
         final Resources res = mLauncher.getResources();
         final boolean material = Utilities.ATLEAST_LOLLIPOP;
-        final int revealDuration = res.getInteger(R.integer.config_overlayRevealTime)*10;
+        final int revealDuration = res.getInteger(R.integer.config_overlayRevealTime);
         final int itemsAlphaStagger = res.getInteger(R.integer.config_overlayItemsAlphaStagger);
 
         final View fromView = mLauncher.getWorkspace();
@@ -238,19 +238,17 @@ public class LauncherStateTransitionAnimation {
 
         // Cancel the current animation
         cancelAnimation();
-//==================================move start
-//        // Create the workspace animation.
-//        // NOTE: this call apparently also sets the state for the workspace if !animated
-//        Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
-//                animated, layerViews);
-//==================================move end
+        // Create the workspace animation.
+        // NOTE: this call apparently also sets the state for the workspace if !animated
+        Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
+                animated, layerViews);
 
         //这个就是进入allapp界面时workspace上的google search bar 往上跑的动画
         // Animate the search bar
         startWorkspaceSearchBarAnimation(
                 toWorkspaceState, animated ? revealDuration : 0, animation);
 
-//        Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView); //move
+        Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView); //move
 
         final View contentView = toView.getContentView();
 
@@ -273,8 +271,7 @@ public class LauncherStateTransitionAnimation {
             if (material) {
                 int[] buttonViewToPanelDelta = Utilities.getCenterDeltaInScreenSpace(
                         revealView, buttonView, null);
-                revealViewToAlpha = 0.2f;
-//                revealViewToAlpha = pCb.materialRevealViewFinalAlpha;
+                revealViewToAlpha = pCb.materialRevealViewFinalAlpha;
                 revealViewToYDrift = buttonViewToPanelDelta[1];
                 revealViewToXDrift = buttonViewToPanelDelta[0];
             } else {
@@ -285,7 +282,7 @@ public class LauncherStateTransitionAnimation {
 
             // Create the animators
             PropertyValuesHolder panelAlpha =
-                    PropertyValuesHolder.ofFloat("alpha", revealViewToAlpha, 0.2f);
+                    PropertyValuesHolder.ofFloat("alpha", revealViewToAlpha, 1f);
             PropertyValuesHolder panelDriftY =
                     PropertyValuesHolder.ofFloat("translationY", revealViewToYDrift, 0);
             PropertyValuesHolder panelDriftX =
@@ -301,7 +298,7 @@ public class LauncherStateTransitionAnimation {
 
             // Setup the animation for the content view
             contentView.setVisibility(View.VISIBLE);
-            contentView.setAlpha(0.2f);
+            contentView.setAlpha(0f);
             contentView.setTranslationY(revealViewToYDrift);
             layerViews.put(contentView, BUILD_AND_SET_LAYER);
 
@@ -313,7 +310,7 @@ public class LauncherStateTransitionAnimation {
             pageDrift.setStartDelay(itemsAlphaStagger);
             animation.play(pageDrift);//这个就是进入allapp界面，界面自下而上的动画
 
-            ObjectAnimator itemsAlpha = ObjectAnimator.ofFloat(contentView, "alpha", 0f, 0.2f);
+            ObjectAnimator itemsAlpha = ObjectAnimator.ofFloat(contentView, "alpha", 0f, 1f);
             itemsAlpha.setDuration(revealDuration);
             itemsAlpha.setInterpolator(new AccelerateInterpolator(1.5f));
             itemsAlpha.setStartDelay(itemsAlphaStagger);
@@ -356,17 +353,11 @@ public class LauncherStateTransitionAnimation {
 
             });
 
-            // Create the workspace animation.
-            // NOTE: this call apparently also sets the state for the workspace if !animated
-            Animator workspaceAnim = mLauncher.startWorkspaceStateChangeAnimation(toWorkspaceState, -1,
-                    animated, layerViews);
-
             // Play the workspace animation
             if (workspaceAnim != null) {
                 animation.play(workspaceAnim);//这个就是进入allapp界面隐藏workspace的
             }
 
-            Animator updateTransitionStepAnim = dispatchOnLauncherTransitionStepAnim(fromView, toView);
             animation.play(updateTransitionStepAnim);//这个不知道是干什么的，这个其实是好多都是空方法
 
             // Dispatch the prepare transition signal
@@ -906,7 +897,11 @@ public class LauncherStateTransitionAnimation {
             if (isWidgetTray) {
                 revealView.setBackground(res.getDrawable(R.drawable.quantum_panel_dark));
             } else {
-                revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                if (LauncherAppState.isLAllappWhiteBG()) {
+                    revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                }else {
+                    revealView.setBackground(null);
+                }
             }
 
             // Hide the real page background, and swap in the fake one
@@ -1107,7 +1102,6 @@ public class LauncherStateTransitionAnimation {
         final float scaleFactor = (float) res.getInteger(R.integer.config_appsCustomizeZoomScaleFactor);
         final View fromView = mLauncher.getmAppsCustomizeTabHost();
         final View toView = mLauncher.getWorkspace();
-//        Animator workspaceAnim = null;
         final HashMap<View, Integer> layerViews = new HashMap<>();
 
         // Cancel the current animation
@@ -1125,7 +1119,7 @@ public class LauncherStateTransitionAnimation {
         boolean initialized = mLauncher.getAllAppsButton() != null;
 
         if (animated && initialized) {
-//            mStateAnimation = LauncherAnimUtils.createAnimatorSet();
+
             if (workspaceAnim != null) {
                 mStateAnimation.play(workspaceAnim);
             }
@@ -1155,7 +1149,11 @@ public class LauncherStateTransitionAnimation {
                 if (isWidgetTray) {
                     revealView.setBackground(res.getDrawable(R.drawable.quantum_panel_dark));
                 } else {
-                    revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                    if(LauncherAppState.isLAllappWhiteBG()) {
+                        revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                    }else{
+                        revealView.setBackground(null);
+                    }
                 }
 
                 int width = revealView.getMeasuredWidth();

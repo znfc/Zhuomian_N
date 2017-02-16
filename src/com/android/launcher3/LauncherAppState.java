@@ -217,4 +217,8 @@ public class LauncherAppState {
         return true;
 //        return false;
     }
+
+    public static boolean isLAllappWhiteBG(){
+        return false;
+    }
 }
