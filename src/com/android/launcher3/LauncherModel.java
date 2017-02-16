@@ -1342,6 +1342,17 @@ public class LauncherModel extends BroadcastReceiver
                         new String[0], user));
             }
         }
+        //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
+        else if(context.getResources().getBoolean(R.bool.support_calendar_icon)){
+            if(Intent.ACTION_DATE_CHANGED.equals(action) ||
+                Intent.ACTION_TIME_CHANGED.equals(action) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(action)){
+                final String packageName = "com.android.calendar";
+                enqueuePackageUpdated(new PackageUpdatedTask(PackageUpdatedTask.OP_UPDATE,
+                        new String[]{packageName},UserHandleCompat.myUserHandle()));
+            }
+        }
+        //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(end)
     }
 
     void forceReload() {
