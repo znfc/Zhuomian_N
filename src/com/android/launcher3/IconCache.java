@@ -46,6 +46,8 @@ import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
+import com.android.launcher3.dynamicicon.ClockScript;
+import com.android.launcher3.dynamicicon.IconScript;
 import com.android.launcher3.model.PackageItemInfo;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.SQLiteCacheHelper;
@@ -84,7 +86,22 @@ public class IconCache {
         public CharSequence title = "";
         public CharSequence contentDescription = "";
         public boolean isLowResIcon;
+        public IconScript script;//icon的脚本//add by zhaopenglin for dynamic clock 20170227
     }
+
+    //add by zhaopenglin for dynamic clock 20170227 start
+    public IconScript getScript(Intent intent, UserHandleCompat user){
+        synchronized (mCache) {
+            ComponentName component = intent.getComponent();
+            if (component == null) {
+                return null;
+            }
+            LauncherActivityInfoCompat launcherActInfo = mLauncherApps.resolveActivity(intent, user);
+            CacheEntry entry = cacheLocked(component, launcherActInfo, user, true, false);
+            return entry.script;
+        }
+    }
+    //add by zhaopenglin for dynamic clock 20170227 end
 
     private final HashMap<UserHandleCompat, Bitmap> mDefaultIcons = new HashMap<>();
     @Thunk final MainThreadExecutor mMainThreadExecutor = new MainThreadExecutor();
@@ -566,6 +583,10 @@ public class IconCache {
             entry = new CacheEntry();
             mCache.put(cacheKey, entry);
 
+            //add by zhaopenglin for dynamic clock 20170227 start
+            if(componentName.getPackageName().equals("com.android.deskclock"))
+                entry.script = new ClockScript();
+            //add by zhaopenglin for dynamic clock 20170227 end
             // Check the DB first.
             if (isCalenderInfo || !getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 if (info != null) {

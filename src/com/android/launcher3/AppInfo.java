@@ -25,6 +25,7 @@ import android.util.Log;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.dynamicicon.IconScript;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.PackageManagerHelper;
 
@@ -167,4 +168,10 @@ public class AppInfo extends ItemInfo {
     public boolean isDisabled() {
         return isDisabled != 0;
     }
+
+    //add by zhaopenglin for dynamic clock 20170227 start
+    public IconScript getScript(IconCache iconCache){
+        return iconCache.getScript(intent, user);
+    }
+    //add by zhaopenglin for dynamic clock 20170227 end
 }

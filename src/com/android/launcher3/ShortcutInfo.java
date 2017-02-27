@@ -27,6 +27,7 @@ import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.dynamicicon.IconScript;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -304,5 +305,11 @@ public class ShortcutInfo extends ItemInfo {
     public boolean isDisabled() {
         return isDisabled != 0;
     }
+
+    //add by zhaopenglin for dynamic clock 20170227 start
+    public IconScript getScript(IconCache iconCache){
+        return iconCache.getScript(promisedIntent != null ? promisedIntent : intent, user);
+    }
+    //add by zhaopenglin for dynamic clock 20170227 end
 }
 

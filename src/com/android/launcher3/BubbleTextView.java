@@ -40,6 +40,7 @@ import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.android.launcher3.IconCache.IconLoadRequest;
+import com.android.launcher3.dynamicicon.IconScript;
 import com.android.launcher3.model.PackageItemInfo;
 
 import java.text.NumberFormat;
@@ -88,6 +89,7 @@ public class BubbleTextView extends TextView
 
     private IconLoadRequest mIconLoadRequest;
 
+    protected IconScript mScript;//add by zhaopenglin for dynamic clock 20170227
     public BubbleTextView(Context context) {
         this(context, null, 0);
     }
@@ -150,6 +152,10 @@ public class BubbleTextView extends TextView
         Bitmap b = info.getIcon(iconCache);
 
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(b);
+        //add by zhaopenglin for dynamic clock 20170227 start
+        mScript = info.getScript(iconCache);
+        if(mScript != null) mScript.setFastBitmapDrawable(iconDrawable);
+        //add by zhaopenglin for dynamic clock 20170227 end
         if (info.isDisabled()) {
             iconDrawable.setState(FastBitmapDrawable.State.DISABLED);
         }
@@ -164,12 +170,32 @@ public class BubbleTextView extends TextView
             applyState(promiseStateChanged);
         }
     }
+    //add by zhaopenglin for dynamic clock 20170227 start
+    @Override
+    public void setCompoundDrawables(Drawable left, Drawable top,
+                                     Drawable right, Drawable bottom) {
+        if(top != null){
+            if(mScript != null){
+                top = mScript;
+                mScript.setBounds(top.getBounds());
+                if(!mScript.isRuning)
+                    mScript.run(this);
+            }
+        }
+
+        super.setCompoundDrawables(left, top, right, bottom);
+    }
+    //add by zhaopenglin for dynamic clock 20170227 end
 
     public void applyFromApplicationInfo(AppInfo info) {
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(info.iconBitmap);
         if (info.isDisabled()) {
             iconDrawable.setState(FastBitmapDrawable.State.DISABLED);
         }
+        //add by zhaopenglin for dynamic clock 20170227 start
+        mScript = info.getScript(LauncherAppState.getInstance().getIconCache());
+        if(mScript != null) mScript.setFastBitmapDrawable(iconDrawable);
+        //add by zhaopenglin for dynamic clock 20170227 end
         setIcon(iconDrawable, mIconSize);
         setText(info.title);
         if (info.contentDescription != null) {
