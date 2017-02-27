@@ -733,7 +733,7 @@ public class LauncherStateTransitionAnimation {
             dispatchOnLauncherTransitionPrepare(toView, animated, true);
             dispatchOnLauncherTransitionStart(toView, animated, true);
             dispatchOnLauncherTransitionEnd(toView, animated, true);
-            pCb.onTransitionComplete();
+//            pCb.onTransitionComplete();
 
             // Run any queued runnables
             if (onCompleteRunnable != null) {
@@ -1328,6 +1328,12 @@ public class LauncherStateTransitionAnimation {
             dispatchOnLauncherTransitionPrepare(toView, animated, true);
             dispatchOnLauncherTransitionStart(toView, animated, true);
             dispatchOnLauncherTransitionEnd(toView, animated, true);
+//            pCb.onTransitionComplete();
+
+            // Run any queued runnables
+            if (onCompleteRunnable != null) {
+                onCompleteRunnable.run();
+            }
 
             return null;
         }

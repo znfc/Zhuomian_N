@@ -1068,6 +1068,7 @@ public class Launcher extends Activity
 
         // Restore the previous launcher state
         if (mOnResumeState == State.WORKSPACE) {
+            MyLogConfig.e(MyLogConfig.debug,"调用了showworkspace");
             showWorkspace(false);
         } else if (mOnResumeState == State.APPS) {
             boolean launchedFromApp = (mWaitingForResume != null);
@@ -2076,6 +2077,7 @@ public class Launcher extends Activity
 
             // If we are already on home, then just animate back to the workspace,
             // otherwise, just wait until onResume to set the state back to Workspace
+            MyLogConfig.e(MyLogConfig.debug,"alreadyOnHome:"+alreadyOnHome);
             if (alreadyOnHome) {
                 showWorkspace(true);
             } else {
@@ -3703,13 +3705,13 @@ public class Launcher extends Activity
             mWorkspace.setVisibility(View.VISIBLE);
             mStateTransitionAnimation.startAnimationToWorkspace(mState, mWorkspace.getState(),
                     Workspace.State.NORMAL, snapToPage, animated, onCompleteRunnable);
-
+            MyLogConfig.e(MyLogConfig.debug, "changed:" + changed+",mWorkspace.getState():"+mWorkspace.getState());
             // Set focus to the AppsCustomize button
             if (mAllAppsButton != null) {
                 mAllAppsButton.requestFocus();
             }
         }
-Log.i("zhaoall","mstate:"+mState);
+        MyLogConfig.e(MyLogConfig.debug, "mstate:" + mState);
 //        if(mState == State.APPS_SPRING_LOADED) throw new RuntimeException("显示桌面3333333:");
         // Change the state *after* we've called all the transition code
         mState = State.WORKSPACE;

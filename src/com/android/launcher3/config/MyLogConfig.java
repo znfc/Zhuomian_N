@@ -25,6 +25,11 @@ public class MyLogConfig {
     public static String state = "zhao11state";
 
     /**
+     * 这个状态位的
+     * 调试切换语言桌面消失
+     */
+    public static String debug = "zhao11statedebug";
+    /**
      * 这个是抛异常的变量
      */
     public static boolean thorwErr = true;
