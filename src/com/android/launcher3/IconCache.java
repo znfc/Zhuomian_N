@@ -575,6 +575,10 @@ public class IconCache {
         CacheEntry entry = mCache.get(cacheKey);
         //Add BUG_ID:DWYSBM-79 zhaopenglin 20160602(start)
         isCalenderInfo= false;
+        //add by zhaopenglin for dynamic clock 20170227 start
+        if(componentName.getPackageName().equals("com.android.deskclock") && entry != null)
+            entry.script = new ClockScript();
+        //add by zhaopenglin for dynamic clock 20170227 end
         if (info != null){
             isCalenderInfo = info.getApplicationInfo().packageName.equals("com.android.calendar");
         }
@@ -583,10 +587,7 @@ public class IconCache {
             entry = new CacheEntry();
             mCache.put(cacheKey, entry);
 
-            //add by zhaopenglin for dynamic clock 20170227 start
-            if(componentName.getPackageName().equals("com.android.deskclock"))
-                entry.script = new ClockScript();
-            //add by zhaopenglin for dynamic clock 20170227 end
+
             // Check the DB first.
             if (isCalenderInfo || !getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 if (info != null) {
