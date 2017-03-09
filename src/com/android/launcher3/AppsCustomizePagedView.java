@@ -810,10 +810,14 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     @Override
     public void onDropCompleted(View target, DragObject d, boolean isFlingToDelete,
             boolean success) {
-        // Return early and wait for onFlingToDeleteCompleted if this was the result of a fling
-        if (isFlingToDelete) return;
-
-        endDragging(target, false, success);
+        if (isFlingToDelete || !success || (target != mLauncher.getWorkspace() &&
+                !(target instanceof DeleteDropTarget) && !(target instanceof Folder))) {
+            // Exit spring loaded mode if we have not successfully dropped or have not handled the
+            // drop in Workspace
+            mLauncher.exitSpringLoadedDragModeDelayed(true,
+                    Launcher.EXIT_SPRINGLOADED_MODE_SHORT_TIMEOUT, null);
+        }
+        mLauncher.unlockScreenOrientation(false);
 
         // Display an error message if the drag failed due to there not being enough space on the
         // target layout we were dropping on.
@@ -825,27 +829,27 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
                 CellLayout layout = (CellLayout) workspace.getChildAt(currentScreen);
                 ItemInfo itemInfo = (ItemInfo) d.dragInfo;
                 if (layout != null) {
-//                    layout.calculateSpans(itemInfo);
                     showOutOfSpaceMessage =
                             !layout.findCellForSpan(null, itemInfo.spanX, itemInfo.spanY);
                 }
             }
-            if (showOutOfSpaceMessage) {
-                mLauncher.showOutOfSpaceMessage(false);
-            }
+//            if (showOutOfSpaceMessage) {
+//                mLauncher.showOutOfSpaceMessage(false);
+//            }
 
             d.deferDragViewCleanupPostAnimation = false;
         }
-        cleanupWidgetPreloading(success);
-        mDraggingWidget = false;
+
+//        cleanupWidgetPreloading(success);
+//        mDraggingWidget = false;
     }
 
     @Override
     public void onFlingToDeleteCompleted() {
         // We just dismiss the drag when we fling, so cleanup here
-        endDragging(null, true, true);
-        cleanupWidgetPreloading(false);
-        mDraggingWidget = false;
+        mLauncher.exitSpringLoadedDragModeDelayed(true,
+                Launcher.EXIT_SPRINGLOADED_MODE_SHORT_TIMEOUT, null);
+        mLauncher.unlockScreenOrientation(false);
     }
 
     @Override
@@ -865,8 +869,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     @Override
     public float getIntrinsicIconScaleFactor() {
-        LauncherAppState app = LauncherAppState.getInstance();
-        DeviceProfile grid = app.getInvariantDeviceProfile().portraitProfile;
+        DeviceProfile grid = mLauncher.getDeviceProfile();
         return (float) grid.allAppsIconSizePx / grid.iconSizePx;
     }
 
@@ -1475,7 +1478,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     public void setApps(ArrayList<AppInfo> list) {
         if (!LauncherAppState.isDisableAllApps()) {
             mApps = list;
-//            Collections.sort(mApps, LauncherModel.getAppNameComparator());
+            Collections.sort(mApps, LauncherModel.getAppNameComparator());
             updatePageCountsAndInvalidateData();
         }
     }
