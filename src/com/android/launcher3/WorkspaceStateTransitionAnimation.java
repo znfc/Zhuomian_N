@@ -508,7 +508,7 @@ public class WorkspaceStateTransitionAnimation {
                 });
                 bgFadeOutAnimation.setInterpolator(new DecelerateInterpolator(1.5f));
                 bgFadeOutAnimation.setDuration(duration);
-//                mStateAnimator.play(bgFadeOutAnimation);
+                mStateAnimator.play(bgFadeOutAnimation);
             } else {
                 dragLayer.setBackgroundAlpha(finalAlpha);
             }
