@@ -157,7 +157,7 @@ public class LauncherStateTransitionAnimation {
         };
 
         if(LauncherAppState.isLRAllApp()){
-            mCurrentAnimation = showAppsCustomizeHelper(true, true);
+            mCurrentAnimation = showAppsCustomizeHelper(animated, true);
             //修改的地方
         }else {
             // Only animate the search bar if animating from spring loaded mode back to all apps

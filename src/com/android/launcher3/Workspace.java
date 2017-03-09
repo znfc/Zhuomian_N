@@ -329,6 +329,8 @@ public class Workspace extends PagedView
 
         mOutlineHelper = HolographicOutlineHelper.obtain(context);
 
+        // With workspace, data is available straight from the get-go
+        setDataIsReady();
         mLauncher = (Launcher) context;
         mStateTransitionAnimation = new WorkspaceStateTransitionAnimation(mLauncher, this);
         final Resources res = getResources();
