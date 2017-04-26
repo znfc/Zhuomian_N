@@ -4731,11 +4731,13 @@ public class Launcher extends Activity
         if (mAppsView != null) {
             Log.i(MyLogConfig.CTS,TAG+",bindAllApplications:"+apps.size());
             mAppsView.setApps(apps);
-            if (mAppsCustomizeContent != null) {
-                Log.i(MyLogConfig.ALLAPP,"添加数据apps:"+apps.size());
-                mAppsCustomizeContent.setApps(apps);
-            }
         }
+
+        if (mAppsCustomizeContent != null) {
+            Log.i(MyLogConfig.ALLAPP,"添加数据apps:"+apps.size());
+            mAppsCustomizeContent.setApps(apps);
+        }
+
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.bindAllApplications(apps);
         }
@@ -4786,7 +4788,10 @@ public class Launcher extends Activity
                 }
                 mAppsView.updateApps(apps);
          }
-        mAppsCustomizeContent.updateApps(apps);
+
+        if (mAppsCustomizeContent != null) {
+            mAppsCustomizeContent.updateApps(apps);
+        }
 
     }
 
