@@ -152,14 +152,18 @@ public class BubbleTextView extends TextView
         Bitmap b = info.getIcon(iconCache);
 
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(b);
-        //add by zhaopenglin for dynamic clock 20170227 start
-        mScript = info.getScript(iconCache);
-        if(mScript != null) mScript.setFastBitmapDrawable(iconDrawable);
-        //add by zhaopenglin for dynamic clock 20170227 end
         if (info.isDisabled()) {
             iconDrawable.setState(FastBitmapDrawable.State.DISABLED);
         }
-        setIcon(iconDrawable, mIconSize);
+        //Modify by zhaopenglin for dynamic clock 20170227 start
+        mScript = info.getScript(iconCache);
+        if(mScript != null) {
+            mScript.setFastBitmapDrawable(iconDrawable);
+            setIcon(mScript, mIconSize);
+        }else {
+            setIcon(iconDrawable, mIconSize);
+        }
+        //Modify by zhaopenglin for dynamic clock 20170227 end
         if (info.contentDescription != null) {
             setContentDescription(info.contentDescription);
         }
@@ -170,33 +174,21 @@ public class BubbleTextView extends TextView
             applyState(promiseStateChanged);
         }
     }
-    //add by zhaopenglin for dynamic clock 20170227 start
-    @Override
-    public void setCompoundDrawables(Drawable left, Drawable top,
-                                     Drawable right, Drawable bottom) {
-        if(top != null){
-            if(mScript != null){
-                top = mScript;
-                mScript.setBounds(top.getBounds());
-                if(!mScript.isRuning)
-                    mScript.run(this);
-            }
-        }
-
-        super.setCompoundDrawables(left, top, right, bottom);
-    }
-    //add by zhaopenglin for dynamic clock 20170227 end
 
     public void applyFromApplicationInfo(AppInfo info) {
         FastBitmapDrawable iconDrawable = mLauncher.createIconDrawable(info.iconBitmap);
         if (info.isDisabled()) {
             iconDrawable.setState(FastBitmapDrawable.State.DISABLED);
         }
-        //add by zhaopenglin for dynamic clock 20170227 start
+        //Modify by zhaopenglin for dynamic clock 20170227 start
         mScript = info.getScript(LauncherAppState.getInstance().getIconCache());
-        if(mScript != null) mScript.setFastBitmapDrawable(iconDrawable);
-        //add by zhaopenglin for dynamic clock 20170227 end
-        setIcon(iconDrawable, mIconSize);
+        if(mScript != null) {
+            mScript.setFastBitmapDrawable(iconDrawable);
+            setIcon(mScript, mIconSize);
+        }else {
+            setIcon(iconDrawable, mIconSize);
+        }
+        //Modify by zhaopenglin for dynamic clock 20170227 end
         setText(info.title);
         if (info.contentDescription != null) {
             setContentDescription(info.contentDescription);
@@ -207,6 +199,20 @@ public class BubbleTextView extends TextView
         // Verify high res immediately
         verifyHighRes();
     }
+
+    //add by zhaopenglin for dynamic clock 20170227 start
+    @Override
+    public void setCompoundDrawables(Drawable left, Drawable top,
+                                     Drawable right, Drawable bottom) {
+        if(mScript != null){
+            mScript.setBounds(top.getBounds());
+            if(!mScript.isRuning)
+                mScript.run(this);
+        }
+
+        super.setCompoundDrawables(left, top, right, bottom);
+    }
+    //add by zhaopenglin for dynamic clock 20170227 end
 
     public void applyFromPackageItemInfo(PackageItemInfo info) {
         setIcon(mLauncher.createIconDrawable(info.iconBitmap), mIconSize);

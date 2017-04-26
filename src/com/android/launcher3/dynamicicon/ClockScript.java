@@ -39,6 +39,7 @@ public class ClockScript extends IconScript {
             mClockThread = new ClockThread();
             mClockThread.start();
         }
+        super.run(view);
     }
 
     @Override
@@ -59,18 +60,17 @@ public class ClockScript extends IconScript {
         super.onStop();
     }
 
-
     @Override
     public void draw(Canvas canvas) {
-        super.draw(canvas);
+//        super.draw(canvas);//父类的这个方法会画原来的icon上去，时钟不需要原来的icon所以不需要这个了
         mIsShowInScreen = true;
-//        mPaint.setColor(Color.WHITE);
-//        canvas.drawCircle(mRect.centerX(), mRect.centerY(), mRect.height()/2, mPaint);
-//        mPaint.setColor(Color.BLACK);
-//        canvas.drawLine(mRect.centerX(), 0, mRect.centerX(), 10, mPaint);
-//        canvas.drawLine(mRect.centerX(), mRect.height(), mRect.centerX(), mRect.height()-10, mPaint);
-//        canvas.drawLine(mRect.left, mRect.centerY(), mRect.left + 10, mRect.centerY(), mPaint);
-//        canvas.drawLine(mRect.right, mRect.centerY(), mRect.right-10, mRect.centerY(), mPaint);
+        mPaint.setColor(Color.WHITE);
+        canvas.drawCircle(mRect.centerX(), mRect.centerY(), mRect.height()/2, mPaint);
+        mPaint.setColor(Color.BLACK);
+        canvas.drawLine(mRect.centerX(), 0, mRect.centerX(), 10, mPaint);
+        canvas.drawLine(mRect.centerX(), mRect.height(), mRect.centerX(), mRect.height()-10, mPaint);
+        canvas.drawLine(mRect.left, mRect.centerY(), mRect.left + 10, mRect.centerY(), mPaint);
+        canvas.drawLine(mRect.right, mRect.centerY(), mRect.right-10, mRect.centerY(), mPaint);
         drawIndicator(canvas, mRect.centerX(), mRect.centerY(), mPaint);
 //        mPaint.setColor(Color.MAGENTA);
         canvas.drawCircle(mRect.centerX(), mRect.centerY(), 3, mPaint);
@@ -133,8 +133,6 @@ public class ClockScript extends IconScript {
                 this.notify();
             }
         }
-
-        ;
 
         public void pauseRun() {
             this.wait = true;
